@@ -13,6 +13,7 @@ find_package(Threads REQUIRED)
 add_compile_options(-Wall)
 
 add_executable(
-  nothello
+  nothello-test
   board.cpp
+  test.cpp
 )

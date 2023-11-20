@@ -4,7 +4,7 @@ public:
 	enum disk { empty = 0, black, white };
 
 private:
-	disk disks[8][8]; 
+	disk disks[8][8] { empty }; 
 
 public:
 	board();
