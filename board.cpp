@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdio>
 
 #include "board.h"
 
@@ -87,4 +88,18 @@ void board::put(const int x, const int y, const disk cur)
 board::disk board::get(const int x, const int y) const
 {
 	return disks[y][x];
+}
+
+void board::dump() const
+{
+	for(int y=7; y>=0; y--) {
+		for(int x=0; x<8; x++) {
+			if (disks[y][x] == empty)
+				printf(".");
+			else if (disks[y][x] == black)
+				printf("*");
+			else
+				printf("o");
+		}
+	}
 }

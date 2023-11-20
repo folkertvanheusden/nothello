@@ -12,4 +12,6 @@ public:
 
 	void put(const int x, const int y, const disk cur);
 	board::disk get(const int x, const int y) const;
+
+	void dump() const;
 };
