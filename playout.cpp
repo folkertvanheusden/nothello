@@ -36,9 +36,14 @@ std::tuple<std::optional<std::pair<int, int> >, int, int> playout(const board & 
 
 std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const board & in, const board::disk start_player, const int think_time)
 {
-	int64_t  counts[8][8] { 0 };
 	uint64_t time_end      = get_ts_ms() + think_time;
 	uint64_t playout_count = 0;
+	int64_t  counts[8][8];
+
+	for(int y=0; y<8; y++) {
+		for(int x=0; x<8; x++)
+			counts[y][x] = std::numeric_limits<int64_t>::min();
+	}
 
 	do {
 		auto rc   = playout(in, start_player);
