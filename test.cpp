@@ -29,6 +29,22 @@ int main(int argc, char *argv[])
 	assert(b.get(5, 1) == board::white);
 	assert(b.get(6, 1) == board::white);
 
+	board b2;
+	b2.put(1, 1, board::white);
+	b2.put(2, 1, board::white);
+	b2.put(3, 1, board::white);
+	b2.put(4, 1, board::white);
+	for(int y=2; y<=4; y++) {
+		for(int x=1; x<=4; x++)
+			b2.put(x, y, board::black);
+	}
+	b2.put(0, 4, board::white);
+	b2.put(5, 4, board::white);
+	for(int y=0; y<8; y++) {
+		for(int x=0; x<8; x++)
+			assert(b2.get(x, y) == board::empty || b2.get(x, y) == board::white);
+	}
+
 	printf("All good.\n");
 
 	return 0;
