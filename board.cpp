@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstdio>
+#include <optional>
 
 #include "board.h"
 
@@ -12,75 +13,80 @@ board::~board()
 {
 }
 
-void board::put(const int x, const int y, const disk cur)
+void board::put(const int set_x, const int set_y, const disk cur)
 {
-	assert(disks[y][x] == empty);
+	assert(disks[set_y][set_x] == empty);
+	disks[set_y][set_x] = cur;
 
-	disk opponent = cur == white ? black : white;
+	for(int y=0; y<8; y++) {
+		std::optional<disk> border;
+		std::optional<int>  border_x;
+		bool                any_other = false;
 
-	disks[y][x] = cur;
-
-	// left
-	int cur_left_x = x - 1;
-
-	while(cur_left_x >= 0) {
-		if (disks[y][cur_left_x] == opponent)
-			cur_left_x--;
-		else {
-			if (disks[y][cur_left_x] == cur) {
-				for(int reset_x=cur_left_x + 1; reset_x<x; reset_x++)
-					disks[y][reset_x] = cur;
+		for(int x=0; x<8; x++) {
+			if (disks[y][x] == empty) {
+				border  .reset();
+				border_x.reset();
+				any_other = false;
 			}
+			else {
+				if (border.has_value() == true && disks[y][x] == border.value()) {  // continuing a color
+					if (any_other) {  // there was another color in between
+						// fill range
+						for(int fill_x=border_x.value(); fill_x<x; fill_x++)
+							disks[y][fill_x] = border.value();
+					}
 
-			break;
+					border_x  = x;
+					any_other = false;
+				}
+				else if (border.has_value() == true && disks[y][x] != border.value()) {  // different color detected; register
+					any_other = true;
+				}
+				else if (border.has_value() == false) {  // new border color
+					border   = disks[y][x];
+					border_x = x;
+				}
+				else {
+					assert(0);
+				}
+			}
 		}
 	}
 
-	// right
-	int cur_right_x = x - 1;
+	for(int x=0; x<8; x++) {
+		std::optional<disk> border;
+		std::optional<int>  border_y;
+		bool                any_other = false;
 
-	while(cur_right_x < 8) {
-		if (disks[y][cur_right_x] == opponent)
-			cur_right_x++;
-		else {
-			if (disks[y][cur_right_x] == cur) {
-				for(int reset_x=x + 1; reset_x<cur_right_x; reset_x++)
-					disks[y][reset_x] = cur;
+		for(int y=0; y<8; y++) {
+			if (disks[y][x] == empty) {
+				border  .reset();
+				border_y.reset();
+				any_other = false;
 			}
+			else {
+				if (border.has_value() == true && disks[y][x] == border.value()) {  // continuing a color
+					if (any_other) {  // there was another color in between
+						// fill range
+						for(int fill_y=border_y.value(); fill_y<y; fill_y++)
+							disks[fill_y][x] = border.value();
+					}
 
-			break;
-		}
-	}
-
-	// up
-	int cur_up_y = y - 1;
-
-	while(cur_up_y >= 0) {
-		if (disks[cur_up_y][x] == opponent)
-			cur_up_y--;
-		else {
-			if (disks[cur_up_y][x] == cur) {
-				for(int reset_y=cur_up_y + 1; reset_y<y; reset_y++)
-					disks[reset_y][x] = cur;
+					border_y  = y;
+					any_other = false;
+				}
+				else if (border.has_value() == true && disks[y][x] != border.value()) {  // different color detected; register
+					any_other = true;
+				}
+				else if (border.has_value() == false) {  // new border color
+					border   = disks[y][x];
+					border_y = y;
+				}
+				else {
+					assert(0);
+				}
 			}
-
-			break;
-		}
-	}
-
-	// down
-	int cur_down_y = y + 1;
-
-	while(cur_down_y < 8) {
-		if (disks[cur_down_y][x] == opponent)
-			cur_down_y++;
-		else {
-			if (disks[cur_down_y][x] == cur) {
-				for(int reset_y=y + 1; reset_y<cur_down_y; reset_y++)
-					disks[reset_y][x] = cur;
-			}
-
-			break;
 		}
 	}
 }
