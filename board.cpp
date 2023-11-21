@@ -16,6 +16,11 @@ board::board(const bool set_initial)
 	}
 }
 
+board::board(const board & in)
+{
+	in.get_to(disks);
+}
+
 board::~board()
 {
 }

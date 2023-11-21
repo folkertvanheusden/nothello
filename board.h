@@ -17,6 +17,7 @@ protected:
 
 public:
 	board(const bool set_initial);
+	board(const board & in);
 	virtual ~board();
 
 	board & operator=(const board & in);
