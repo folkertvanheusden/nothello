@@ -7,7 +7,7 @@
 #include "board.h"
 #include "playout.h"
 #include "random.h"
-#include "uoi.h"
+#include "ugi.h"
 
 
 void console_mode()
@@ -111,8 +111,8 @@ int main(int argc, char *argv[])
 		console_mode();
 	else if (mode == "autoplay")
 		autoplay();
-	else if (mode == "uoi")
-		uoi();
+	else if (mode == "ugi")
+		ugi();
 	else
 		printf("Do not understand \"%s\"\n", mode.c_str());
 

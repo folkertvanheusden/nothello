@@ -21,7 +21,7 @@ void send(const std::string & fmt, ...)
 	free(str);
 }
 
-void uoi()
+void ugi()
 {
 	board      *b      = new board(true);
 	board::disk player = board::black;
@@ -37,10 +37,10 @@ void uoi()
 
 		auto parts = split(buffer, " ");
 
-		if (parts[0] == "uoi") {
+		if (parts[0] == "ugi") {
                         send("id name Nothello\n");
                         send("id author Folkert van Heusden\n");
-                        send("uoiok\n");
+                        send("ugiok\n");
                 }
                 else if (parts.at(0) == "uainewgame") {
 			delete b;
