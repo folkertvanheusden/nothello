@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstdio>
+#include <getopt.h>
 #include <readline/history.h>
 #include <readline/readline.h>
 
@@ -67,9 +68,49 @@ void console_mode()
 	printf("score for black: %d\n", b.get_score(board::black));
 }
 
+void autoplay(void)
+{
+	board       b(true);
+	board::disk player = board::white;
+
+	for(;;) {
+		auto valid_moves = b.get_valid(player);
+		if (valid_moves.empty())
+			break;
+
+		auto rc   = find_best_move(b, player, 1000);
+		auto move = std::get<0>(rc);
+		if (move.has_value() == false) {
+			printf("Can't decide\n");
+			break;
+		}
+
+		printf("I play: %c%c (%.2f playouts per second)\n", move.value().first + 'A', move.value().second + '1', std::get<1>(rc));
+
+		b.put(move.value().first, move.value().second, player);
+
+		player = player == board::white ? board::black : board::white;
+	}
+
+	b.dump();
+}
+
 int main(int argc, char *argv[])
 {
-	console_mode();
+	std::string mode = "console";
+	int c = -1;
+
+	while((c = getopt(argc, argv, "m:")) != -1) {
+		if (c == 'm')
+			mode = optarg;
+	}
+
+	if (mode == "console")
+		console_mode();
+	else if (mode == "autoplay")
+		autoplay();
+	else
+		printf("Do not understand \"%s\"\n", mode.c_str());
 
 	return 0;
 }
