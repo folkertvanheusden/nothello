@@ -65,7 +65,7 @@ void board::set_fen(const std::string & fen)
 	}
 }
 
-bool board::scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur)
+bool board::scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur) const
 {
 	int x = start_x + dx;
 	int y = start_y + dy;
@@ -92,7 +92,7 @@ bool board::scan(const int start_x, const int start_y, const int dx, const int d
 	return false;
 }
 
-bool board::is_valid(const int x, const int y, const disk cur)
+bool board::is_valid(const int x, const int y, const disk cur) const
 {
 	if (disks[y][x] != empty)
 		return false;
@@ -109,7 +109,7 @@ bool board::is_valid(const int x, const int y, const disk cur)
 		scan(x, y, -1, -1, cur);
 }
 
-std::vector<std::pair<int, int> > board::get_valid(const disk cur)
+std::vector<std::pair<int, int> > board::get_valid(const disk cur) const
 {
 	std::vector<std::pair<int, int> > out;
 
@@ -197,7 +197,7 @@ void board::dump() const
 			if (disks[y][x] == empty)
 				printf(".");
 			else if (disks[y][x] == black)
-				printf("*");
+				printf("x");
 			else
 				printf("o");
 		}
@@ -211,7 +211,7 @@ void board::dump() const
 	printf("\n");
 }
 
-int board::get_score(const disk for_whom)
+int board::get_score(const disk for_whom) const
 {
 	int scores[3] { 0 };
 
@@ -223,7 +223,7 @@ int board::get_score(const disk for_whom)
 	return scores[for_whom] - scores[for_whom == white ? black : white];
 }
 
-int board::estimate_total_move_count()
+int board::estimate_total_move_count() const
 {
 	int counts[3] { 0 };
 
@@ -233,4 +233,39 @@ int board::estimate_total_move_count()
 	}
 
 	return counts[empty];
+}
+
+std::string board::emit_fen(const disk current_player) const
+{
+	std::string out;
+
+	for(int y=0; y<8; y++) {
+		int skip = 0;
+
+		for(int x=0; x<8; x++) {
+			if (disks[y][x] == empty)
+				skip++;
+			else {
+				if (skip) {
+					out += myformat("%d", skip);
+					skip = 0;
+				}
+
+				if (disks[y][x] == white)
+					out += "o";
+				else
+					out += "x";
+			}
+		}
+
+		if (skip)
+			out += myformat("%d", skip);
+
+		if (y != 7)
+			out += "/";
+	}
+
+	out += myformat(" %c", current_player == white ? 'o' : 'x');
+
+	return out;
 }

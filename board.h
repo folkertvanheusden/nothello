@@ -11,7 +11,7 @@ public:
 private:
 	disk disks[8][8] { empty }; 
 
-	bool scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur);
+	bool scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur) const;
 	void scan_and_flip(const int start_x, const int start_y, const int dx, const int dy);
 
 protected:
@@ -26,13 +26,14 @@ public:
 
 	board & operator=(const board & in);
 
-	bool   is_valid(const int x, const int y, const disk cur);
-	std::vector<std::pair<int, int> > get_valid(const disk cur);
+	bool   is_valid(const int x, const int y, const disk cur) const;
+	std::vector<std::pair<int, int> > get_valid(const disk cur) const;
 	void        put(const int x, const int y, const disk cur);
 	board::disk get(const int x, const int y) const;
 
-	void dump() const;
+	void        dump() const;
+	std::string emit_fen(const disk current_player) const;
 
-	int get_score(const disk for_whom);
-	int estimate_total_move_count();
+	int get_score(const disk for_whom) const;
+	int estimate_total_move_count() const;
 };

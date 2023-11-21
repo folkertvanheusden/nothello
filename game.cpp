@@ -19,6 +19,7 @@ void console_mode()
 	for(;;) {
 		printf("\n");
 		b.dump();
+		printf("FEN: %s\n", b.emit_fen(player).c_str());
 		printf("\n");
 
 		auto valid_moves = b.get_valid(player);
