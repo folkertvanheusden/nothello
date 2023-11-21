@@ -158,7 +158,7 @@ void board::scan_and_flip(const int start_x, const int start_y, const int dx, co
 					fill_x += dx;
 					fill_y += dy;
 				}
-				while(fill_x != x && fill_y != y);
+				while(fill_x != x || fill_y != y);
 			}
 
 			break;

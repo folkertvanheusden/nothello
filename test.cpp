@@ -52,16 +52,15 @@ int main(int argc, char *argv[])
 			for(int x=1; x<=4; x++)
 				b3.put(x, y, board::black);
 		}
+		assert(b3.emit_fen(board::black) == "8/1oooo3/1xxxx3/1xxxx3/1xxxx3/8/8/8 x");
 		assert(b3.is_valid(0, 4, board::white));
 		b3.put(0, 4, board::white);
+
+		assert(b3.emit_fen(board::black) == "8/1oooo3/1xoxx3/1oxxx3/oxxxx3/8/8/8 x");
 		assert(b3.is_valid(5, 4, board::white));
 		b3.put(5, 4, board::white);
-		for(int y=0; y<8; y++) {
-			for(int x=0; x<8; x++)
-				assert(b3.get(x, y) == board::empty || b3.get(x, y) == board::white);
-		}
-		assert(b3.get_valid(board::white).empty());
-		assert(b3.get_valid(board::black).empty());
+
+		assert(b3.emit_fen(board::black) == "8/1oooo3/1xoox3/1oxxo3/oooooo2/8/8/8 x");
 	}
 
 	// regressions
