@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[])
 {
-	board b;
+	board b(false);
 
 	// left
 	b.put(1, 1, board::white);
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 	assert(b.get(2, 1) == board::white);
 	assert(b.get(3, 1) == board::white);
 
-	board b2;
+	board b2(false);
 	b2.put(1, 1, board::white);
 	b2.put(2, 2, board::black);
 	b2.put(3, 3, board::black);
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	assert(b.get(5, 1) == board::white);
 	assert(b.get(6, 1) == board::white);
 
-	board b3;
+	board b3(false);
 	b3.put(1, 1, board::white);
 	b3.put(2, 1, board::white);
 	b3.put(3, 1, board::white);

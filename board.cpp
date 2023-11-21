@@ -5,8 +5,14 @@
 #include "board.h"
 
 
-board::board()
+board::board(const bool set_initial)
 {
+	if (set_initial) {
+		disks[3][3] = white;
+		disks[4][4] = white;
+		disks[3][4] = black;
+		disks[4][3] = black;
+	}
 }
 
 board::~board()
@@ -145,7 +151,9 @@ board::disk board::get(const int x, const int y) const
 
 void board::dump() const
 {
-	for(int y=7; y>=0; y--) {
+	for(int y=0; y<8; y++) {
+		printf("%d ", y + 1);
+
 		for(int x=0; x<8; x++) {
 			if (disks[y][x] == empty)
 				printf(".");
@@ -157,9 +165,14 @@ void board::dump() const
 
 		printf("\n");
 	}
+
+	printf("  ");
+	for(int x=0; x<8; x++)
+		printf("%c", 'A' + x);
+	printf("\n");
 }
 
-int board::score(const disk for_whom)
+int board::get_score(const disk for_whom)
 {
 	int scores[3] { 0 };
 

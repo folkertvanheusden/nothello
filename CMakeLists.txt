@@ -7,9 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
 add_compile_options(-Wall)
 
 add_executable(
@@ -17,3 +14,22 @@ add_executable(
   board.cpp
   test.cpp
 )
+
+add_executable(
+  nothello
+  board.cpp
+  game.cpp
+  random.cpp
+)
+
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads)
+target_link_libraries(nothello Threads::Threads)
+
+include(FindPkgConfig)
+
+pkg_check_modules(READLINE REQUIRED readline)
+target_link_libraries(nothello ${READLINE_LIBRARIES})
+target_include_directories(nothello PUBLIC ${READLINE_INCLUDE_DIRS})
+target_compile_options(nothello PUBLIC ${READLINE_CFLAGS_OTHER})

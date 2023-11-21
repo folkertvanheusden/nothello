@@ -13,7 +13,7 @@ private:
 	void scan_and_flip(const int start_x, const int start_y, const int dx, const int dy);
 
 public:
-	board();
+	board(const bool set_initial);
 	virtual ~board();
 
 	bool   is_valid(const int x, const int y, const disk cur);
@@ -23,5 +23,5 @@ public:
 
 	void dump() const;
 
-	int score(const disk for_whom);
+	int get_score(const disk for_whom);
 };
