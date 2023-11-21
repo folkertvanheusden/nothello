@@ -19,7 +19,9 @@ add_executable(
   nothello
   board.cpp
   game.cpp
+  playout.cpp
   random.cpp
+  time.cpp
 )
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
