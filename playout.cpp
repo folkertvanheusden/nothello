@@ -38,12 +38,8 @@ std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const boa
 {
 	uint64_t time_end      = get_ts_ms() + think_time;
 	uint64_t playout_count = 0;
-	int64_t  counts[8][8];
-
-	for(int y=0; y<8; y++) {
-		for(int x=0; x<8; x++)
-			counts[y][x] = std::numeric_limits<int64_t>::min();
-	}
+	int64_t  scores[8][8] { 0 };
+	int64_t  counts[8][8] { 0 };
 
 	do {
 		auto rc   = playout(in, start_player);
@@ -53,22 +49,29 @@ std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const boa
 			int score = std::get<2>(rc);
 
 			if (score > 0)
-				counts[move.value().second][move.value().first]++;
+				scores[move.value().second][move.value().first]++;
 			else if (score < 0)
-				counts[move.value().second][move.value().first]--;
+				scores[move.value().second][move.value().first]--;
+
+			counts[move.value().second][move.value().first]++;
 		}
 
 		playout_count++;
 	}
 	while(get_ts_ms() < time_end);
 
-	int64_t best_score = std::numeric_limits<int64_t>::min();
+	double best_score = -1.;
 	std::pair<int, int> chosen_move;
 
 	for(int y=0; y<8; y++) {
 		for(int x=0; x<8; x++) {
-			if (counts[y][x] > best_score) {
-				best_score  = counts[y][x];
+			if (counts[y][x] == 0)
+				continue;
+
+			double score = scores[y][x] / counts[y][x];
+
+			if (score > best_score) {
+				best_score  = score;
 				chosen_move = { x, y };
 			}
 		}
