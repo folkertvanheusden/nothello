@@ -13,6 +13,85 @@ board::~board()
 {
 }
 
+bool board::is_valid(const int set_x, const int set_y, const disk cur)
+{
+	disk opponent = cur == white ? black : white;
+
+	if (set_x < 7 && disks[set_y][set_x + 1] == opponent) {
+		std::optional<bool> validr;
+
+		for(int x=set_x + 2; x<8; x++) {
+			if (disks[set_y][x] == empty) {
+				validr = false;
+				break;
+			}
+			else if (disks[set_y][x] == cur) {
+				validr = true;
+				break;
+			}
+		}
+
+		if (validr.has_value() == true && validr.value())
+			return true;
+	}
+
+	if (set_x > 0 && disks[set_y][set_x - 1] == opponent) {
+		std::optional<bool> validl;
+
+		for(int x=set_x - 2; x>=0; x--) {
+			if (disks[set_y][x] == empty) {
+				validl = false;
+				break;
+			}
+			else if (disks[set_y][x] == cur) {
+				validl = true;
+				break;
+			}
+		}
+
+		if (validl.has_value() == true && validl.value())
+			return true;
+	}
+
+	if (set_y < 7 && disks[set_y + 1][set_x] == opponent) {
+		std::optional<bool> validd;
+
+		for(int y=set_y + 2; y<8; y++) {
+			if (disks[y][set_x] == empty) {
+				validd = false;
+				break;
+			}
+			else if (disks[y][set_x] == cur) {
+				validd = true;
+				break;
+			}
+		}
+
+		if (validd.has_value() == true && validd.value())
+			return true;
+	}
+
+	if (set_y > 0 && disks[set_y - 1][set_x] == opponent) {
+		std::optional<bool> validu;
+
+		for(int y=set_y - 2; y>=0; y--) {
+			if (disks[y][set_x] == empty) {
+				validu = false;
+				break;
+			}
+			else if (disks[y][set_x] == cur) {
+				validu = true;
+				break;
+			}
+		}
+
+		if (validu.has_value() == true && validu.value())
+			return true;
+	}
+
+	return false;
+}
+
 void board::put(const int set_x, const int set_y, const disk cur)
 {
 	assert(disks[set_y][set_x] == empty);

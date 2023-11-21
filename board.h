@@ -10,7 +10,8 @@ public:
 	board();
 	virtual ~board();
 
-	void put(const int x, const int y, const disk cur);
+	bool   is_valid(const int x, const int y, const disk cur);
+	void        put(const int x, const int y, const disk cur);
 	board::disk get(const int x, const int y) const;
 
 	void dump() const;
