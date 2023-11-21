@@ -4,6 +4,7 @@
 #include <optional>
 
 #include "board.h"
+#include "str.h"
 
 
 board::board(const bool set_initial)
@@ -40,12 +41,14 @@ board & board::operator=(const board & in)
 
 void board::set_fen(const std::string & fen)
 {
+	auto parts = split(fen, " " );
+
 	// 8/8/8/3ox3/3xo3/8/8/8 x
 
 	int x = 0;
 	int y = 0;
 
-	for(auto & c: fen) {
+	for(auto & c: parts[0]) {
 		if (c == 'o' || c == 'O')
 			disks[y][x++] = white;
 		else if (c == 'x' || c == 'X')

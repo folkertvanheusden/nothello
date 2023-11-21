@@ -12,6 +12,7 @@ add_compile_options(-Wall)
 add_executable(
   nothello-test
   board.cpp
+  str.cpp
   test.cpp
 )
 
@@ -21,7 +22,9 @@ add_executable(
   game.cpp
   playout.cpp
   random.cpp
+  str.cpp
   time.cpp
+  uoi.cpp
 )
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
