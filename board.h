@@ -12,9 +12,14 @@ private:
 	bool scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur);
 	void scan_and_flip(const int start_x, const int start_y, const int dx, const int dy);
 
+protected:
+	void get_to(disk d[][8]) const;
+
 public:
 	board(const bool set_initial);
 	virtual ~board();
+
+	board & operator=(const board & in);
 
 	bool   is_valid(const int x, const int y, const disk cur);
 	std::vector<std::pair<int, int> > get_valid(const disk cur);

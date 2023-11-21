@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstring>
 #include <cstdio>
 #include <optional>
 
@@ -17,6 +18,18 @@ board::board(const bool set_initial)
 
 board::~board()
 {
+}
+
+void board::get_to(disk d[][8]) const
+{
+	memcpy(d, disks, sizeof(disks));
+}
+
+board & board::operator=(const board & in)
+{
+	in.get_to(disks);
+
+	return *this;
 }
 
 bool board::scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur)
