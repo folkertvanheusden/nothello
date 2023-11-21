@@ -117,13 +117,13 @@ void ugi()
                                         w_time = b_time = std::stoi(parts.at(++i));
                                         time_set = true;
                                 }
-                                else if (parts.at(i) == "wtime")
+                                else if (parts.at(i) == "p1time")
                                         w_time = std::stoi(parts.at(++i));
-                                else if (parts.at(i) == "btime")
+                                else if (parts.at(i) == "p2time")
                                         b_time = std::stoi(parts.at(++i));
-                                else if (parts.at(i) == "winc")
+                                else if (parts.at(i) == "p1inc")
                                         w_inc = std::stoi(parts.at(++i));
-                                else if (parts.at(i) == "binc")
+                                else if (parts.at(i) == "p2inc")
                                         b_inc = std::stoi(parts.at(++i));
                                 else if (parts.at(i) == "movestogo")
                                         moves_to_go = std::stoi(parts.at(++i));
@@ -155,7 +155,7 @@ void ugi()
 				send("bestmove 0000\n");
 			}
 			else {
-				fprintf(stderr, "I play: %c%c (%.2f playouts per second)\n", move.value().first + 'A', move.value().second + '1', std::get<1>(rc));
+				//fprintf(stderr, "I play: %c%c (%.2f playouts per second)\n", move.value().first + 'A', move.value().second + '1', std::get<1>(rc));
 
 				b->put(move.value().first, move.value().second, player);
 
