@@ -101,5 +101,7 @@ void board::dump() const
 			else
 				printf("o");
 		}
+
+		printf("\n");
 	}
 }
