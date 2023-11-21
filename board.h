@@ -9,6 +9,7 @@ public:
 private:
 	disk disks[8][8] { empty }; 
 
+	bool scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur);
 	void scan_and_flip(const int start_x, const int start_y, const int dx, const int dy);
 
 public:

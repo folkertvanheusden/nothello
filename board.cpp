@@ -13,90 +13,48 @@ board::~board()
 {
 }
 
-bool board::is_valid(const int set_x, const int set_y, const disk cur)
+bool board::scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur)
 {
-	if (disks[set_y][set_x] != empty)
-		return false;
+	int x = start_x + dx;
+	int y = start_y + dy;
 
-	disk opponent = cur == white ? black : white;
+	const disk          border    = cur;
+	std::optional<int>  border_x;
+	std::optional<int>  border_y;
+	bool                any_other = false;
 
-	// right
-	if (set_x < 7 && disks[set_y][set_x + 1] == opponent) {
-		std::optional<bool> validr;
+	while(x >= 0 && x < 8 && y >= 0 && y < 8) {
+		if (disks[y][x] == empty)
+			return false;
 
-		for(int x=set_x + 2; x<8; x++) {
-			if (disks[set_y][x] == empty) {
-				validr = false;
-				break;
-			}
-			else if (disks[set_y][x] == cur) {
-				validr = true;
-				break;
-			}
-		}
+		if (disks[y][x] == border)  // continuing a color
+			return any_other;  // there was another color in between
 
-		if (validr.has_value() == true && validr.value())
-			return true;
-	}
+		if (disks[y][x] != border)  // different color detected; register
+			any_other = true;
 
-	// left
-	if (set_x > 0 && disks[set_y][set_x - 1] == opponent) {
-		std::optional<bool> validl;
-
-		for(int x=set_x - 2; x>=0; x--) {
-			if (disks[set_y][x] == empty) {
-				validl = false;
-				break;
-			}
-			else if (disks[set_y][x] == cur) {
-				validl = true;
-				break;
-			}
-		}
-
-		if (validl.has_value() == true && validl.value())
-			return true;
-	}
-
-	// down
-	if (set_y < 7 && disks[set_y + 1][set_x] == opponent) {
-		std::optional<bool> validd;
-
-		for(int y=set_y + 2; y<8; y++) {
-			if (disks[y][set_x] == empty) {
-				validd = false;
-				break;
-			}
-			else if (disks[y][set_x] == cur) {
-				validd = true;
-				break;
-			}
-		}
-
-		if (validd.has_value() == true && validd.value())
-			return true;
-	}
-
-	// up
-	if (set_y > 0 && disks[set_y - 1][set_x] == opponent) {
-		std::optional<bool> validu;
-
-		for(int y=set_y - 2; y>=0; y--) {
-			if (disks[y][set_x] == empty) {
-				validu = false;
-				break;
-			}
-			else if (disks[y][set_x] == cur) {
-				validu = true;
-				break;
-			}
-		}
-
-		if (validu.has_value() == true && validu.value())
-			return true;
+		x += dx;
+		y += dy;
 	}
 
 	return false;
+}
+
+bool board::is_valid(const int x, const int y, const disk cur)
+{
+	if (disks[y][x] != empty)
+		return false;
+
+	return
+		scan(x, y,  0,  1, cur) ||
+		scan(x, y,  1,  0, cur) ||
+		scan(x, y,  0, -1, cur) ||
+		scan(x, y, -1,  0, cur) ||
+
+		scan(x, y,  1,  1, cur) ||
+		scan(x, y,  1, -1, cur) ||
+		scan(x, y, -1,  1, cur) ||
+		scan(x, y, -1, -1, cur);
 }
 
 std::vector<std::pair<int, int> > board::get_valid(const disk cur)

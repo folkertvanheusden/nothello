@@ -12,9 +12,9 @@ int main(int argc, char *argv[])
 	b.put(1, 1, board::white);
 	b.put(2, 1, board::black);
 	b.put(3, 1, board::black);
-//	assert(b.is_valid(4, 1, board::white));
-//	assert(b.get_valid(board::white).size() == 1);
-//	assert(b.get_valid(board::black).size() == 1);
+	assert(b.is_valid(4, 1, board::white));
+	assert(b.get_valid(board::white).size() == 1);
+	assert(b.get_valid(board::black).size() == 1);
 	b.put(4, 1, board::white);
 	assert(b.get(2, 1) == board::white);
 	assert(b.get(3, 1) == board::white);
@@ -26,8 +26,6 @@ int main(int argc, char *argv[])
 	b2.put(4, 4, board::white);
 	assert(b2.get(2, 2) == board::white);
 	assert(b2.get(3, 3) == board::white);
-
-	return 0;
 
 	// up
 	b.put(1, 2, board::black);
@@ -53,7 +51,7 @@ int main(int argc, char *argv[])
 		for(int x=1; x<=4; x++)
 			b3.put(x, y, board::black);
 	}
-	assert(!b3.is_valid(0, 4, board::white));
+	assert(b3.is_valid(0, 4, board::white));
 	b3.put(0, 4, board::white);
 	assert(b3.is_valid(5, 4, board::white));
 	b3.put(5, 4, board::white);
