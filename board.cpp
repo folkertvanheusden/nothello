@@ -8,12 +8,13 @@
 
 board::board(const bool set_initial)
 {
-	if (set_initial) {
-		disks[3][3] = white;
-		disks[4][4] = white;
-		disks[3][4] = black;
-		disks[4][3] = black;
-	}
+	if (set_initial)
+		set_fen("8/8/8/3ox3/3xo3/8/8/8");
+}
+
+board::board(const std::string & fen)
+{
+	set_fen(fen);
 }
 
 board::board(const board & in)
@@ -35,6 +36,30 @@ board & board::operator=(const board & in)
 	in.get_to(disks);
 
 	return *this;
+}
+
+void board::set_fen(const std::string & fen)
+{
+	// 8/8/8/3ox3/3xo3/8/8/8 x
+
+	int x = 0;
+	int y = 0;
+
+	for(auto & c: fen) {
+		if (c == 'o' || c == 'O')
+			disks[y][x++] = white;
+		else if (c == 'x' || c == 'X')
+			disks[y][x++] = black;
+		else if (c == '/') {
+		}
+		else
+			x += c - '0';
+
+		if (x == 8) {
+			y++;
+			x = 0;
+		}
+	}
 }
 
 bool board::scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur)

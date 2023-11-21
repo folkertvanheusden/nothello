@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <vector>
 
 
@@ -15,9 +16,11 @@ private:
 
 protected:
 	void get_to(disk d[][8]) const;
+	void set_fen(const std::string & fen);
 
 public:
 	board(const bool set_initial);
+	board(const std::string & fen);
 	board(const board & in);
 	virtual ~board();
 
