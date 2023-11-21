@@ -24,7 +24,7 @@ void send(const std::string & fmt, ...)
 void ugi()
 {
 	board      *b      = new board(true);
-	board::disk player = board::black;
+	board::disk player = board::white;
 
 	for(;;) {
 		char buffer[4096];
@@ -46,7 +46,24 @@ void ugi()
 			delete b;
 			b = new board(true);
 
-			player = board::black;
+			player = board::white;
+		}
+                else if (parts.at(0) == "query" && parts.at(1) == "p1turn") {
+			send(player == board::white ? "response true\n" : "response false\n");
+		}
+                else if (parts.at(0) == "query" && parts.at(1) == "gameover") {
+			auto valid_moves = b->get_valid(player);
+			send(valid_moves.empty() ? "response true\n" : "response false\n");
+		}
+                else if (parts.at(0) == "query" && parts.at(1) == "result") {
+			int score = b->get_score(board::white);
+
+			if (score > 0)
+				send("response p1win\n");
+			else if (score < 0)
+				send("response p2win\n");
+			else
+				send("response draw\n");
 		}
                 else if (parts.at(0) == "position") {
                         bool moves = false;
