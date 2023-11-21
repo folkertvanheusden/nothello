@@ -13,6 +13,8 @@ int main(int argc, char *argv[])
 	b.put(2, 1, board::black);
 	b.put(3, 1, board::black);
 	assert(b.is_valid(4, 1, board::white));
+	assert(b.get_valid(board::white).size() == 1);
+	assert(b.get_valid(board::black).size() == 1);
 	b.put(4, 1, board::white);
 	assert(b.get(2, 1) == board::white);
 	assert(b.get(3, 1) == board::white);
@@ -49,6 +51,8 @@ int main(int argc, char *argv[])
 		for(int x=0; x<8; x++)
 			assert(b2.get(x, y) == board::empty || b2.get(x, y) == board::white);
 	}
+	assert(b2.get_valid(board::white).empty());
+	assert(b2.get_valid(board::black).empty());
 
 	printf("All good.\n");
 

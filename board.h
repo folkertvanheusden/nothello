@@ -1,3 +1,6 @@
+#include <vector>
+
+
 class board
 {
 public:
@@ -11,6 +14,7 @@ public:
 	virtual ~board();
 
 	bool   is_valid(const int x, const int y, const disk cur);
+	std::vector<std::pair<int, int> > get_valid(const disk cur);
 	void        put(const int x, const int y, const disk cur);
 	board::disk get(const int x, const int y) const;
 

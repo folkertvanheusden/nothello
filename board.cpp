@@ -15,6 +15,9 @@ board::~board()
 
 bool board::is_valid(const int set_x, const int set_y, const disk cur)
 {
+	if (disks[set_y][set_x] != empty)
+		return false;
+
 	disk opponent = cur == white ? black : white;
 
 	if (set_x < 7 && disks[set_y][set_x + 1] == opponent) {
@@ -90,6 +93,20 @@ bool board::is_valid(const int set_x, const int set_y, const disk cur)
 	}
 
 	return false;
+}
+
+std::vector<std::pair<int, int> > board::get_valid(const disk cur)
+{
+	std::vector<std::pair<int, int> > out;
+
+	for(int y=0; y<8; y++) {
+		for(int x=0; x<8; x++) {
+			if (is_valid(x, y, cur))
+				out.emplace_back(x, y);
+		}
+	}
+
+	return out;
 }
 
 void board::put(const int set_x, const int set_y, const disk cur)
