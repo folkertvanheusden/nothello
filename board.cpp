@@ -222,3 +222,15 @@ int board::get_score(const disk for_whom)
 
 	return scores[for_whom] - scores[for_whom == white ? black : white];
 }
+
+int board::estimate_total_move_count()
+{
+	int counts[3] { 0 };
+
+	for(int y=0; y<8; y++) {
+		for(int x=0; x<8; x++)
+			counts[disks[y][x]]++;
+	}
+
+	return counts[empty];
+}

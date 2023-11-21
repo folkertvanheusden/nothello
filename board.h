@@ -34,4 +34,5 @@ public:
 	void dump() const;
 
 	int get_score(const disk for_whom);
+	int estimate_total_move_count();
 };
