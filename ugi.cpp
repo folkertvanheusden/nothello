@@ -42,7 +42,7 @@ void ugi()
                         send("id author Folkert van Heusden\n");
                         send("ugiok\n");
                 }
-                else if (parts.at(0) == "uainewgame") {
+                else if (parts.at(0) == "uginewgame") {
 			delete b;
 			b = new board(true);
 
