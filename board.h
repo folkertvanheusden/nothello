@@ -14,4 +14,6 @@ public:
 	board::disk get(const int x, const int y) const;
 
 	void dump() const;
+
+	int score(const disk for_whom);
 };

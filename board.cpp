@@ -111,3 +111,15 @@ void board::dump() const
 		printf("\n");
 	}
 }
+
+int board::score(const disk for_whom)
+{
+	int scores[3] { 0 };
+
+	for(int y=0; y<8; y++) {
+		for(int x=0; x<8; x++)
+			scores[disks[y][x]]++;
+	}
+
+	return scores[for_whom] - scores[for_whom == white ? black : white];
+}
