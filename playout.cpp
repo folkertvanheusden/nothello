@@ -74,5 +74,8 @@ std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const boa
 		}
 	}
 
+	if (think_time == 0)  // prevent divide by 0
+		return { chosen_move, 0 };
+
 	return { chosen_move, playout_count * 1000 / think_time };
 }
