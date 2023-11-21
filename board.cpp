@@ -18,6 +18,11 @@ board::board(const std::string & fen)
 	set_fen(fen);
 }
 
+board::board(const char *const fen)
+{
+	set_fen(fen);
+}
+
 board::board(const board & in)
 {
 	in.get_to(disks);

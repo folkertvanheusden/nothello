@@ -21,6 +21,7 @@ protected:
 public:
 	board(const bool set_initial);
 	board(const std::string & fen);
+	board(const char *const fen);
 	board(const board & in);
 	virtual ~board();
 
