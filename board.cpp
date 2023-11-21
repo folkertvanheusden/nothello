@@ -167,27 +167,20 @@ void board::scan_and_flip(const int start_x, const int start_y, const int dx, co
 	}
 }
 
-void board::put(const int set_x, const int set_y, const disk cur)
+void board::put(const int x, const int y, const disk cur)
 {
-	assert(disks[set_y][set_x] == empty);
-	disks[set_y][set_x] = cur;
+	assert(disks[y][x] == empty);
+	disks[y][x] = cur;
 
-	for(int y=0; y<8; y++) {
-		for(int x=0; x<8; x++) {
-			if (disks[y][x] == empty)
-				continue;
+	scan_and_flip(x, y,  0,  1);
+	scan_and_flip(x, y,  1,  0);
+	scan_and_flip(x, y,  0, -1);
+	scan_and_flip(x, y, -1,  0);
 
-			scan_and_flip(x, y, 0, 1);
-			scan_and_flip(x, y, 1, 0);
-			scan_and_flip(x, y, 0, -1);
-			scan_and_flip(x, y, -1, 0);
-
-			scan_and_flip(x, y,  1,  1);
-			scan_and_flip(x, y,  1, -1);
-			scan_and_flip(x, y, -1,  1);
-			scan_and_flip(x, y, -1, -1);
-		}
-	}
+	scan_and_flip(x, y,  1,  1);
+	scan_and_flip(x, y,  1, -1);
+	scan_and_flip(x, y, -1,  1);
+	scan_and_flip(x, y, -1, -1);
 }
 
 board::disk board::get(const int x, const int y) const
