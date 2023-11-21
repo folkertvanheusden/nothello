@@ -20,6 +20,7 @@ bool board::is_valid(const int set_x, const int set_y, const disk cur)
 
 	disk opponent = cur == white ? black : white;
 
+	// right
 	if (set_x < 7 && disks[set_y][set_x + 1] == opponent) {
 		std::optional<bool> validr;
 
@@ -38,6 +39,7 @@ bool board::is_valid(const int set_x, const int set_y, const disk cur)
 			return true;
 	}
 
+	// left
 	if (set_x > 0 && disks[set_y][set_x - 1] == opponent) {
 		std::optional<bool> validl;
 
@@ -56,6 +58,7 @@ bool board::is_valid(const int set_x, const int set_y, const disk cur)
 			return true;
 	}
 
+	// down
 	if (set_y < 7 && disks[set_y + 1][set_x] == opponent) {
 		std::optional<bool> validd;
 
@@ -74,6 +77,7 @@ bool board::is_valid(const int set_x, const int set_y, const disk cur)
 			return true;
 	}
 
+	// up
 	if (set_y > 0 && disks[set_y - 1][set_x] == opponent) {
 		std::optional<bool> validu;
 
@@ -109,80 +113,69 @@ std::vector<std::pair<int, int> > board::get_valid(const disk cur)
 	return out;
 }
 
+void board::scan_and_flip(const int start_x, const int start_y, const int dx, const int dy)
+{
+	int x = start_x;
+	int y = start_y;
+
+	std::optional<disk> border;
+	std::optional<int>  border_x;
+	std::optional<int>  border_y;
+	bool                any_other = false;
+
+	while(x >= 0 && x < 8 && y >= 0 && y < 8) {
+		if (disks[y][x] == empty)
+			break;
+
+		if (border.has_value() == false) {  // new border color
+			border   = disks[y][x];
+			border_x = x;
+			border_y = y;
+		}
+		else if (disks[y][x] == border.value()) {  // continuing a color
+			if (any_other) {  // there was another color in between
+				// fill range
+				int fill_x = border_x.value() + dx;
+				int fill_y = border_y.value() + dy;
+
+				do {
+					disks[fill_y][fill_x] = border.value();
+					fill_x += dx;
+					fill_y += dy;
+				}
+				while(fill_x != x && fill_y != y);
+			}
+
+			break;
+		}
+		else if (disks[y][x] != border.value()) {  // different color detected; register
+			any_other = true;
+		}
+
+		x += dx;
+		y += dy;
+	}
+}
+
 void board::put(const int set_x, const int set_y, const disk cur)
 {
 	assert(disks[set_y][set_x] == empty);
 	disks[set_y][set_x] = cur;
 
 	for(int y=0; y<8; y++) {
-		std::optional<disk> border;
-		std::optional<int>  border_x;
-		bool                any_other = false;
-
 		for(int x=0; x<8; x++) {
-			if (disks[y][x] == empty) {
-				border  .reset();
-				border_x.reset();
-				any_other = false;
-			}
-			else {
-				if (border.has_value() == true && disks[y][x] == border.value()) {  // continuing a color
-					if (any_other) {  // there was another color in between
-						// fill range
-						for(int fill_x=border_x.value(); fill_x<x; fill_x++)
-							disks[y][fill_x] = border.value();
-					}
+			if (disks[y][x] == empty)
+				continue;
 
-					border_x  = x;
-					any_other = false;
-				}
-				else if (border.has_value() == true && disks[y][x] != border.value()) {  // different color detected; register
-					any_other = true;
-				}
-				else if (border.has_value() == false) {  // new border color
-					border   = disks[y][x];
-					border_x = x;
-				}
-				else {
-					assert(0);
-				}
-			}
-		}
-	}
+			scan_and_flip(x, y, 0, 1);
+			scan_and_flip(x, y, 1, 0);
+			scan_and_flip(x, y, 0, -1);
+			scan_and_flip(x, y, -1, 0);
 
-	for(int x=0; x<8; x++) {
-		std::optional<disk> border;
-		std::optional<int>  border_y;
-		bool                any_other = false;
-
-		for(int y=0; y<8; y++) {
-			if (disks[y][x] == empty) {
-				border  .reset();
-				border_y.reset();
-				any_other = false;
-			}
-			else {
-				if (border.has_value() == true && disks[y][x] == border.value()) {  // continuing a color
-					if (any_other) {  // there was another color in between
-						// fill range
-						for(int fill_y=border_y.value(); fill_y<y; fill_y++)
-							disks[fill_y][x] = border.value();
-					}
-
-					border_y  = y;
-					any_other = false;
-				}
-				else if (border.has_value() == true && disks[y][x] != border.value()) {  // different color detected; register
-					any_other = true;
-				}
-				else if (border.has_value() == false) {  // new border color
-					border   = disks[y][x];
-					border_y = y;
-				}
-				else {
-					assert(0);
-				}
-			}
+			scan_and_flip(x, y,  1,  1);
+			scan_and_flip(x, y,  1, -1);
+			scan_and_flip(x, y, -1,  1);
+			scan_and_flip(x, y, -1, -1);
 		}
 	}
 }

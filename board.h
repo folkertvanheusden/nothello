@@ -9,6 +9,8 @@ public:
 private:
 	disk disks[8][8] { empty }; 
 
+	void scan_and_flip(const int start_x, const int start_y, const int dx, const int dy);
+
 public:
 	board();
 	virtual ~board();
