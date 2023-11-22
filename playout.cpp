@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cassert>
-#include <cfloat>
 #include <optional>
 
 #include "board.h"
@@ -69,16 +68,15 @@ std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const boa
 	}
 	while(get_ts_ms() < time_end);
 
-	double best_score = DBL_MIN_EXP;
-	std::optional<std::pair<int, int> > chosen_move;
+	double best_score = -1.;
+	std::pair<int, int> chosen_move;
 
 	for(int y=0; y<8; y++) {
 		for(int x=0; x<8; x++) {
 			if (counts[y][x] == 0)
 				continue;
 
-			double score = double(scores[y][x]) / counts[y][x];
-			printf("%d,%d: %f  (%zd / %zu)\n", x, y, score, ssize_t(scores[y][x]), size_t(counts[y][x]));
+			double score = scores[y][x] / counts[y][x];
 
 			if (score > best_score) {
 				best_score  = score;
