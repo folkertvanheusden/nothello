@@ -24,7 +24,7 @@ void send(const std::string & fmt, ...)
 void ugi()
 {
 	board      *b      = new board(true);
-	board::disk player = board::white;
+	board::disk player = board::black;
 
 	for(;;) {
 		char buffer[4096];
@@ -48,17 +48,17 @@ void ugi()
 			delete b;
 			b = new board(true);
 
-			player = board::white;
+			player = board::black;
 		}
                 else if (parts.at(0) == "query" && parts.at(1) == "p1turn") {
-			send(player == board::white ? "response true\n" : "response false\n");
+			send(player == board::black ? "response true\n" : "response false\n");
 		}
                 else if (parts.at(0) == "query" && parts.at(1) == "gameover") {
 			auto valid_moves = b->get_valid(player);
 			send(valid_moves.empty() ? "response true\n" : "response false\n");
 		}
                 else if (parts.at(0) == "query" && parts.at(1) == "result") {
-			int score = b->get_score(board::white);
+			int score = b->get_score(board::black);
 
 			if (score > 0)
 				send("response p1win\n");
@@ -85,7 +85,7 @@ void ugi()
                                 else if (parts.at(i) == "startpos") {
 					delete b;
                                         b = new board(true);
-					player = board::white;
+					player = board::black;
                                         i++;
                                 }
                                 else if (parts.at(i) == "moves") {
@@ -119,13 +119,13 @@ void ugi()
                                         time_set = true;
                                 }
                                 else if (parts.at(i) == "p1time")
-                                        w_time = std::stoi(parts.at(++i));
-                                else if (parts.at(i) == "p2time")
                                         b_time = std::stoi(parts.at(++i));
+                                else if (parts.at(i) == "p2time")
+                                        w_time = std::stoi(parts.at(++i));
                                 else if (parts.at(i) == "p1inc")
-                                        w_inc = std::stoi(parts.at(++i));
-                                else if (parts.at(i) == "p2inc")
                                         b_inc = std::stoi(parts.at(++i));
+                                else if (parts.at(i) == "p2inc")
+                                        w_inc = std::stoi(parts.at(++i));
                                 else if (parts.at(i) == "movestogo")
                                         moves_to_go = std::stoi(parts.at(++i));
                         }

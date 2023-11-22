@@ -14,7 +14,7 @@ void console_mode()
 {
 	board b(true);
 
-	board::disk player = board::white;
+	board::disk player = board::black;
 
 	for(;;) {
 		printf("\n");
