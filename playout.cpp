@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cassert>
 #include <cfloat>
 #include <optional>
 
@@ -15,22 +17,42 @@ std::tuple<std::optional<std::pair<int, int> >, int, int> playout(const board & 
 
 	std::optional<std::pair<int, int> > first;
 
-	while(++mc < 8 * 8 * 8) {
-		auto valid_moves = b.get_valid(current_player);
-		if (valid_moves.empty())
-			break;
-
-		std::uniform_int_distribution<> rng(0, valid_moves.size() - 1);
-		size_t nr   = rng(gen);
-		auto   move = valid_moves.at(nr);
-
-		if (first.has_value() == false)
-			first = move;
-
-		b.put(move.first, move.second, current_player);
-
-		current_player = current_player == board::white ? board::black : board::white;
+	std::vector<std::pair<int, int> > coordinates;
+	for(int y=0; y<8; y++) {
+		for(int x=0; x<8; x++) {
+			if (b.get(x, y) == board::empty)
+				coordinates.push_back({ x, y });
+		}
 	}
+	std::shuffle(std::begin(coordinates), std::end(coordinates), gen);
+
+	bool any_valid = false;
+
+	do {
+		any_valid = false;
+
+		for(size_t i=0; i<coordinates.size(); i++) {
+			auto move = coordinates.at(i);
+
+			if (b.is_valid(move.first, move.second, current_player) == false)
+				continue;
+
+			size_t last = coordinates.size() - 1;
+			if (i != last)
+				std::swap(i, last);
+			coordinates.erase(coordinates.begin() + last);
+
+			any_valid = true;
+
+			if (first.has_value() == false)
+				first = move;
+
+			b.put(move.first, move.second, current_player);
+
+			current_player = current_player == board::white ? board::black : board::white;
+		}
+	}
+	while(any_valid);
 
 	return std::tuple<std::optional<std::pair<int, int> >, int, int>(first, mc, b.get_score(start_player));
 }
@@ -43,16 +65,16 @@ std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const boa
 	int64_t  scores[8][8] { 0 };
 	int64_t  counts[8][8] { 0 };
 
-	do {
-		auto rc   = playout(in, start_player);
-		auto move = std::get<0>(rc);
+        do {
+                auto rc   = playout(in, start_player);
+                auto move = std::get<0>(rc);
 
-		if (move.has_value()) {
-			int score = std::get<2>(rc);
+                if (move.has_value()) {
+                        int score = std::get<2>(rc);
 
-			scores[move.value().second][move.value().first] += score;
-			counts[move.value().second][move.value().first]++;
-		}
+                        scores[move.value().second][move.value().first] += score;
+                        counts[move.value().second][move.value().first]++;
+                }
 
 		move_count += std::get<1>(rc);
 		playout_count++;
