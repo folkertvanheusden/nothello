@@ -36,6 +36,8 @@ void ugi()
 			*lf = 0x00;
 
 		auto parts = split(buffer, " ");
+		if (parts.size() == 0)
+			continue;
 
 		if (parts[0] == "ugi") {
                         send("id name Nothello\n");
