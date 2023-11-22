@@ -70,19 +70,20 @@ void ugi()
 
                         for(size_t i=1; i<parts.size();) {
                                 if (parts.at(i) == "fen") {
-                                        std::string fen;
-
-                                        for(size_t f = i + 1; f<parts.size(); f++)
-                                                fen += parts.at(f) + " ";
+                                        std::string fen   = parts.at(++i);
+					std::string color = parts.at(++i);
 
 					delete b;
                                         b = new board(fen);
+
+					player = color == "o" ? board::white : board::black;
 
                                         break;
                                 }
                                 else if (parts.at(i) == "startpos") {
 					delete b;
                                         b = new board(true);
+					player = board::white;
                                         i++;
                                 }
                                 else if (parts.at(i) == "moves") {
