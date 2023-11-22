@@ -156,7 +156,6 @@ void ugi()
 			uct_node *root = nullptr;
 			auto      rc   = calculate_move(*b, player, now + think_time, now + think_time * 1.05, &root);
 			auto      move = std::get<0>(rc);
-			fprintf(stderr, "%zu\n", size_t(std::get<1>(rc)));
 			if (move.has_value() == false) {
 				send("bestmove 0000\n");
 			}
