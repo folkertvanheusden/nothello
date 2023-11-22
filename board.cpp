@@ -130,31 +130,23 @@ std::vector<std::pair<int, int> > board::get_valid(const disk cur) const
 
 void board::scan_and_flip(const int start_x, const int start_y, const int dx, const int dy)
 {
-	int x = start_x;
-	int y = start_y;
+	disk border    = disks[start_y][start_x];
+	int  border_x  = start_x;
+	int  border_y  = start_y;
+	bool any_other = false;
 
-	std::optional<disk> border;
-	std::optional<int>  border_x;
-	std::optional<int>  border_y;
-	bool                any_other = false;
+	int  x         = start_x + dx;
+	int  y         = start_y + dy;
 
-	while(x >= 0 && x < 8 && y >= 0 && y < 8) {
-		if (disks[y][x] == empty)
-			break;
-
-		if (border.has_value() == false) {  // new border color
-			border   = disks[y][x];
-			border_x = x;
-			border_y = y;
-		}
-		else if (disks[y][x] == border.value()) {  // continuing a color
+	while(x >= 0 && x < 8 && y >= 0 && y < 8 && disks[y][x] != empty) {
+		if (disks[y][x] == border) {  // continuing a color
 			if (any_other) {  // there was another color in between
 				// fill range
-				int fill_x = border_x.value() + dx;
-				int fill_y = border_y.value() + dy;
+				int fill_x = border_x + dx;
+				int fill_y = border_y + dy;
 
 				do {
-					disks[fill_y][fill_x] = border.value();
+					disks[fill_y][fill_x] = border;
 					fill_x += dx;
 					fill_y += dy;
 				}
@@ -163,7 +155,7 @@ void board::scan_and_flip(const int start_x, const int start_y, const int dx, co
 
 			break;
 		}
-		else if (disks[y][x] != border.value()) {  // different color detected; register
+		else {  // different color detected; register
 			any_other = true;
 		}
 
