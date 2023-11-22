@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cassert>
 #include <optional>
 
 #include "board.h"
@@ -14,14 +16,15 @@ std::tuple<std::optional<std::pair<int, int> >, int, int> playout(const board & 
 
 	std::optional<std::pair<int, int> > first;
 
-	while(++mc < 8 * 8 * 8) {
-		auto valid_moves = b.get_valid(current_player);
-		if (valid_moves.empty())
-			break;
+	std::vector<std::pair<int, int> > coordinates(64);
+	for(int i=0; i<64; i++)
+		coordinates.at(i) = { i >> 3, i & 7 };
+	std::shuffle(std::begin(coordinates), std::end(coordinates), gen);
 
-		std::uniform_int_distribution<> rng(0, valid_moves.size() - 1);
-		size_t nr   = rng(gen);
-		auto   move = valid_moves.at(nr);
+	for(int i=0; i<64; i++) {
+		auto & move = coordinates.at(i);
+		if (b.is_valid(move.first, move.second, current_player) == false)
+			continue;
 
 		if (first.has_value() == false)
 			first = move;
@@ -30,6 +33,8 @@ std::tuple<std::optional<std::pair<int, int> >, int, int> playout(const board & 
 
 		current_player = current_player == board::white ? board::black : board::white;
 	}
+
+	assert(b.get_valid(current_player).empty());
 
 	return std::tuple<std::optional<std::pair<int, int> >, int, int>(first, mc, b.get_score(start_player));
 }
