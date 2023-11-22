@@ -70,15 +70,11 @@ void board::set_fen(const std::string & fen)
 	}
 }
 
-bool board::scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur) const
+bool board::scan(const int start_x, const int start_y, const int dx, const int dy, const disk border) const
 {
-	int x = start_x + dx;
-	int y = start_y + dy;
-
-	const disk          border    = cur;
-	std::optional<int>  border_x;
-	std::optional<int>  border_y;
-	bool                any_other = false;
+	int        x         = start_x + dx;
+	int        y         = start_y + dy;
+	bool       any_other = false;
 
 	while(x >= 0 && x < 8 && y >= 0 && y < 8) {
 		if (disks[y][x] == empty)
@@ -87,8 +83,8 @@ bool board::scan(const int start_x, const int start_y, const int dx, const int d
 		if (disks[y][x] == border)  // continuing a color
 			return any_other;  // there was another color in between
 
-		if (disks[y][x] != border)  // different color detected; register
-			any_other = true;
+		// different color detected; register
+		any_other = true;
 
 		x += dx;
 		y += dy;
