@@ -60,7 +60,11 @@ std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const boa
 		if (move.has_value()) {
 			int score = std::get<2>(rc);
 
-			scores[move.value().second][move.value().first] += score;
+			if (score > 0)
+				scores[move.value().second][move.value().first]++;
+			else if (score < 0)
+				scores[move.value().second][move.value().first]--;
+
 			counts[move.value().second][move.value().first]++;
 		}
 
