@@ -57,8 +57,9 @@ std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const boa
 {
 	uint64_t time_end      = get_ts_ms() + think_time;
 	uint64_t playout_count = 0;
-        int64_t  scores[8][8] { 0 };
-        int64_t  counts[8][8] { 0 };
+	uint64_t move_count    = 0;
+	int64_t  scores[8][8] { 0 };
+	int64_t  counts[8][8] { 0 };
 
         do {
                 auto rc   = playout(in, start_player);
@@ -71,9 +72,12 @@ std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const boa
                         counts[move.value().second][move.value().first]++;
                 }
 
-                playout_count++;
-        }
-        while(get_ts_ms() < time_end);
+		move_count += std::get<1>(rc);
+		playout_count++;
+	}
+	while(get_ts_ms() < time_end);
+
+	printf("%zu %zu / %f\n", move_count, playout_count, move_count / double(playout_count));
 
 	double best_score = -DBL_MAX;
 	std::optional<std::pair<int, int> > chosen_move;
