@@ -31,10 +31,9 @@ std::tuple<std::optional<std::pair<int, int> >, int, int> playout(const board & 
 			auto move = coordinates.at(i);
 
 			size_t last = coordinates.size() - 1;
-			if (i != last) {
+			if (i != last)
 				std::swap(i, last);
-				coordinates.erase(coordinates.begin() + last);
-			}
+			coordinates.erase(coordinates.begin() + last);
 
 			if (b.is_valid(move.first, move.second, current_player) == false)
 				continue;
