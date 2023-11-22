@@ -91,19 +91,17 @@ void ugi()
                                         i++;
                                 }
                                 else if (moves) {
-                                        while(i < parts.size() && parts.at(i).size() < 4)
-                                                i++;
-
 					int x = tolower(parts[i][0]) - 'a';
 					int y = parts[i][1] - '1';
 
-					b ->put(x, y, player);
+					b->put(x, y, player);
 
 					player = player == board::black ? board::white : board::black;
 
                                         i++;
                                 }
                                 else {
+					fprintf(stderr, "%s not understood\n", parts.at(i).c_str());
                                 }
                         }
                 }
