@@ -161,7 +161,7 @@ void ugi()
 			}
 			else {
 				b->put(move.value().first, move.value().second, player);
-				send("bestmove %c%c\n", move.value().first + 'A', move.value().second + '1');
+				send("bestmove %c%c\n", move.value().first + 'a', move.value().second + '1');
 			}
 
 			delete root;
