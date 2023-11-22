@@ -9,17 +9,20 @@
 
 board::board(const bool set_initial)
 {
+	memset(disks, 0x00, sizeof disks);
 	if (set_initial)
 		set_fen("8/8/8/3ox3/3xo3/8/8/8");
 }
 
 board::board(const std::string & fen)
 {
+	memset(disks, 0x00, sizeof disks);
 	set_fen(fen);
 }
 
 board::board(const char *const fen)
 {
+	memset(disks, 0x00, sizeof disks);
 	set_fen(fen);
 }
 

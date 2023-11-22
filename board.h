@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -9,7 +10,7 @@ public:
 	enum disk { empty = 0, black, white };
 
 private:
-	disk disks[8][8] { empty }; 
+	disk disks[8][8];
 
 	bool scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur) const;
 	void scan_and_flip(const int start_x, const int start_y, const int dx, const int dy);
