@@ -81,7 +81,7 @@ std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const boa
 	}
 	while(get_ts_ms() < time_end);
 
-	printf("%zu %zu / %f\n", move_count, playout_count, move_count / double(playout_count));
+	//printf("%zu %zu / %f\n", move_count, playout_count, move_count / double(playout_count));
 
 	double best_score = -DBL_MAX;
 	std::optional<std::pair<int, int> > chosen_move;
