@@ -77,8 +77,6 @@ void ugi()
                                         b = new board(fen);
 
 					player = color == "o" ? board::white : board::black;
-
-                                        break;
                                 }
                                 else if (parts.at(i) == "startpos") {
 					delete b;
