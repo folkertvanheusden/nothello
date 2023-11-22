@@ -70,7 +70,7 @@ std::tuple<std::optional<std::pair<int, int> >, double> find_best_move(const boa
         while(get_ts_ms() < time_end);
 
 	double best_score = -DBL_MAX;
-	std::pair<int, int> chosen_move;
+	std::optional<std::pair<int, int> > chosen_move;
 
 	for(int y=0; y<8; y++) {
 		for(int x=0; x<8; x++) {
