@@ -29,6 +29,7 @@ add_executable(
   random.cpp
   str.cpp
   time.cpp
+  uct.cpp
   ugi.cpp
 )
 

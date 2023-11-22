@@ -273,3 +273,16 @@ std::string board::emit_fen(const disk current_player) const
 
 	return out;
 }
+
+bool board::operator==(const board & rhs) const
+{
+	disk copy[8][8];
+	rhs.get_to(copy);
+
+	return memcmp(copy, disks, sizeof copy) == 0;
+}
+
+board::disk opponent_color(const board::disk & cur)
+{
+	return cur == board::white ? board::black : board::white;
+}

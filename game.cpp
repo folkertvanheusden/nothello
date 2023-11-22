@@ -7,6 +7,8 @@
 #include "board.h"
 #include "playout.h"
 #include "random.h"
+#include "time.h"
+#include "uct.h"
 #include "ugi.h"
 
 
@@ -51,14 +53,16 @@ void console_mode()
 			b.put(x, y, player);
 		}
 		else {
-			auto rc   = find_best_move(b, player, 1000);
-			auto move = std::get<0>(rc);
+			uint64_t  now  = get_ts_ms();
+			uct_node *root = nullptr;
+			auto      rc   = calculate_move(b, player, now + 1000, now + 1000, &root);
+			auto      move = std::get<0>(rc);
 			if (move.has_value() == false) {
 				printf("Can't decide\n");
 				break;
 			}
 
-			printf("I play: %c%c (%.2f playouts per second)\n", move.value().first + 'A', move.value().second + '1', std::get<1>(rc));
+			printf("I play: %c%c (%zu playouts per second)\n", move.value().first + 'A', move.value().second + '1', size_t(std::get<1>(rc)));
 
 			b.put(move.value().first, move.value().second, player);
 		}

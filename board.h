@@ -27,6 +27,7 @@ public:
 	virtual ~board();
 
 	board & operator=(const board & in);
+	bool operator==(const board & rhs) const;
 
 	bool   is_valid(const int x, const int y, const disk cur) const;
 	std::vector<std::pair<int, int> > get_valid(const disk cur) const;
@@ -39,3 +40,5 @@ public:
 	int get_score(const disk for_whom) const;
 	int estimate_total_move_count() const;
 };
+
+board::disk opponent_color(const board::disk & cur);

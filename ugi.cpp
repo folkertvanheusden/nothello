@@ -2,8 +2,9 @@
 #include <cstdarg>
 
 #include "board.h"
-#include "playout.h"
+#include "uct.h"
 #include "str.h"
+#include "time.h"
 
 
 void send(const std::string & fmt, ...)
@@ -30,6 +31,8 @@ void ugi()
 		char buffer[4096];
 		if (fgets(buffer, sizeof buffer, stdin) == nullptr)
 			break;
+
+		uint64_t now = get_ts_ms();
 
 		char *lf = strchr(buffer, '\n');
 		if (lf)
@@ -150,18 +153,19 @@ void ugi()
                         if (think_time > 50)
                                 think_time -= 50;
 
-			auto rc   = find_best_move(*b, player, think_time);
-			auto move = std::get<0>(rc);
+			uct_node *root = nullptr;
+			auto      rc   = calculate_move(*b, player, now + think_time, now + think_time * 1.05, &root);
+			auto      move = std::get<0>(rc);
+			fprintf(stderr, "%zu\n", size_t(std::get<1>(rc)));
 			if (move.has_value() == false) {
 				send("bestmove 0000\n");
 			}
 			else {
-				//fprintf(stderr, "I play: %c%c (%.2f playouts per second)\n", move.value().first + 'A', move.value().second + '1', std::get<1>(rc));
-
 				b->put(move.value().first, move.value().second, player);
-
 				send("bestmove %c%c\n", move.value().first + 'A', move.value().second + '1');
 			}
+
+			delete root;
 
 			player = player == board::black ? board::white : board::black;
                 }
