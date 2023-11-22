@@ -17,9 +17,13 @@ std::tuple<std::optional<std::pair<int, int> >, int, int> playout(const board & 
 
 	std::optional<std::pair<int, int> > first;
 
-	std::vector<std::pair<int, int> > coordinates(64);
-	for(int i=0; i<64; i++)
-		coordinates.at(i) = { i >> 3, i & 7 };
+	std::vector<std::pair<int, int> > coordinates;
+	for(int y=0; y<8; y++) {
+		for(int x=0; x<8; x++) {
+			if (b.get(x, y) == board::empty)
+				coordinates.push_back({ x, y });
+		}
+	}
 	std::shuffle(std::begin(coordinates), std::end(coordinates), gen);
 
 	bool any_valid = false;
