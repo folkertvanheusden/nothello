@@ -72,11 +72,11 @@ void board::set_fen(const std::string & fen)
 
 bool board::scan(const int start_x, const int start_y, const int dx, const int dy, const disk border) const
 {
-	int        x         = start_x + dx;
-	int        y         = start_y + dy;
-	bool       any_other = false;
+	unsigned x         = start_x + dx;
+	unsigned y         = start_y + dy;
+	bool     any_other = false;
 
-	while(x >= 0 && x < 8 && y >= 0 && y < 8) {
+	while(x < 8 && y < 8) {
 		if (disks[y][x] == empty)
 			return false;
 
@@ -126,15 +126,15 @@ std::vector<std::pair<int, int> > board::get_valid(const disk cur) const
 
 void board::scan_and_flip(const int start_x, const int start_y, const int dx, const int dy)
 {
-	int x = start_x;
-	int y = start_y;
+	unsigned x = start_x;
+	unsigned y = start_y;
 
-	std::optional<disk> border;
-	std::optional<int>  border_x;
-	std::optional<int>  border_y;
-	bool                any_other = false;
+	std::optional<disk>     border;
+	std::optional<unsigned> border_x;
+	std::optional<unsigned> border_y;
+	bool                    any_other = false;
 
-	while(x >= 0 && x < 8 && y >= 0 && y < 8) {
+	while(x < 8 && y < 8) {
 		if (disks[y][x] == empty)
 			break;
 
@@ -146,8 +146,8 @@ void board::scan_and_flip(const int start_x, const int start_y, const int dx, co
 		else if (disks[y][x] == border.value()) {  // continuing a color
 			if (any_other) {  // there was another color in between
 				// fill range
-				int fill_x = border_x.value() + dx;
-				int fill_y = border_y.value() + dy;
+				unsigned fill_x = border_x.value() + dx;
+				unsigned fill_y = border_y.value() + dy;
 
 				do {
 					disks[fill_y][fill_x] = border.value();
