@@ -21,20 +21,27 @@ std::tuple<std::optional<std::pair<int, int> >, int, int> playout(const board & 
 		coordinates.at(i) = { i >> 3, i & 7 };
 	std::shuffle(std::begin(coordinates), std::end(coordinates), gen);
 
-	for(int i=0; i<64; i++) {
-		auto & move = coordinates.at(i);
-		if (b.is_valid(move.first, move.second, current_player) == false)
-			continue;
+	bool any_valid = false;
 
-		if (first.has_value() == false)
-			first = move;
+	do {
+		any_valid = false;
 
-		b.put(move.first, move.second, current_player);
+		for(int i=0; i<64; i++) {
+			auto & move = coordinates.at(i);
+			if (b.is_valid(move.first, move.second, current_player) == false)
+				continue;
 
-		current_player = current_player == board::white ? board::black : board::white;
+			any_valid = true;
+
+			if (first.has_value() == false)
+				first = move;
+
+			b.put(move.first, move.second, current_player);
+
+			current_player = current_player == board::white ? board::black : board::white;
+		}
 	}
-
-	assert(b.get_valid(current_player).empty());
+	while(any_valid);
 
 	return std::tuple<std::optional<std::pair<int, int> >, int, int>(first, mc, b.get_score(start_player));
 }
