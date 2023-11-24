@@ -57,8 +57,15 @@ void ugi()
 			send(player == board::black ? "response true\n" : "response false\n");
 		}
                 else if (parts.at(0) == "query" && parts.at(1) == "gameover") {
-			auto valid_moves = b->get_valid(player);
-			send(valid_moves.empty() ? "response true\n" : "response false\n");
+			auto valid_moves_w = b->get_valid(board::white);
+			auto valid_moves_b = b->get_valid(board::black);
+			send((valid_moves_w.empty() && valid_moves_b.empty()) ? "response true\n" : "response false\n");
+		}
+                else if (parts.at(0) == "query" && parts.at(1) == "fen") {
+			send(b->emit_fen(player) + "\n");
+		}
+                else if (parts.at(0) == "query" && parts.at(1) == "board") {
+			b->dump();
 		}
                 else if (parts.at(0) == "query" && parts.at(1) == "result") {
 			int score = b->get_score(board::black);
