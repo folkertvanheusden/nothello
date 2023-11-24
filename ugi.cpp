@@ -103,10 +103,12 @@ void ugi()
                                         i++;
                                 }
                                 else if (moves) {
-					int x = tolower(parts[i][0]) - 'a';
-					int y = parts[i][1] - '1';
+					if (parts[i] != "0000") {
+						int x = tolower(parts[i][0]) - 'a';
+						int y = parts[i][1] - '1';
 
-					b->put(x, y, player);
+						b->put(x, y, player);
+					}
 
 					player = player == board::black ? board::white : board::black;
 
