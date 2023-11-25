@@ -51,6 +51,9 @@ std::tuple<std::optional<std::pair<int, int> >, int, int> playout(const board & 
 
 			current_player = current_player == board::white ? board::black : board::white;
 		}
+
+		if (!any_valid)
+			any_valid = b.get_valid(current_player).empty() == false;
 	}
 	while(any_valid);
 
