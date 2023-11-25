@@ -77,14 +77,21 @@ uct_node *uct_node::pick_unvisited()
 
 		game_over = unvisited.empty();
 
+		if (game_over)
+			game_over = this->position.get_valid(opponent_color(player)).empty();
+
 		if (!game_over)
 			std::shuffle(std::begin(unvisited), std::end(unvisited), rng);
 	}
 
-	// TODO: also 'pass'
+	if (unvisited.empty()) {
+		if (game_over)
+			return nullptr;
 
-	if (unvisited.empty())
-		return nullptr;
+		children.emplace_back(new uct_node(this, position, opponent_color(player), { }));
+
+		return { children.back() };
+	}
 
 	auto first = unvisited.back();
 
@@ -160,10 +167,14 @@ const uct_node *uct_node::best_child() const
 
 auto uct_node::get_children() const
 {
-	std::vector<std::tuple<std::pair<int, int> , uint64_t, double> > out;
+	std::vector<std::tuple<std::optional<std::pair<int, int> >, uint64_t, double> > out;
 
-	for(auto & u: children)
-		out.push_back({ u->get_causing_move(), u->get_visit_count(), u->get_score_count() });
+	for(auto & u: children) {
+		if (u->has_causing_move())
+			out.push_back({ u->get_causing_move(), u->get_visit_count(), u->get_score_count() });
+		else
+			out.push_back({ { }, u->get_visit_count(), u->get_score_count() });
+	}
 
 	return out;
 }
@@ -220,6 +231,11 @@ void uct_node::monte_carlo_tree_search()
 	backpropagate(leaf, 1. - simulation_result);
 }
 
+bool uct_node::has_causing_move() const
+{
+	return causing_move.has_value();
+}
+
 const std::pair<int, int>  uct_node::get_causing_move() const
 {
 	return causing_move.value();
@@ -244,7 +260,7 @@ uct_node *uct_node::find_position(const board & which)
 	return nullptr;
 }
 
-std::tuple<std::optional<std::pair<int, int> >, uint64_t, uint64_t, std::vector<std::tuple<std::pair<int, int> , uint64_t, double> > > calculate_move(const board & b, const board::disk p, const uint64_t think_end_time, const uint64_t think_end_time_extra, uct_node **const root)
+std::tuple<std::optional<std::pair<int, int> >, uint64_t, uint64_t, std::vector<std::tuple<std::optional<std::pair<int, int> >, uint64_t, double> > > calculate_move(const board & b, const board::disk p, const uint64_t think_end_time, const uint64_t think_end_time_extra, uct_node **const root)
 {
 	if (*root) {
 		uct_node *new_root = (*root)->find_position(b);
@@ -279,7 +295,10 @@ std::tuple<std::optional<std::pair<int, int> >, uint64_t, uint64_t, std::vector<
 			uint64_t best_count = 0;
 
 			if (best_node) {
-				best_move  = best_node->get_causing_move();
+				if (best_node->has_causing_move())
+					best_move  = best_node->get_causing_move();
+				else
+					best_move.reset();
 
 				best_count = best_node->get_visit_count();
 			}

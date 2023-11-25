@@ -57,16 +57,13 @@ void console_mode()
 			uct_node *root = nullptr;
 			auto      rc   = calculate_move(b, player, now + 1000, now + 1000, &root);
 			auto      move = std::get<0>(rc);
-			if (move.has_value() == false) {
-				printf("Can't decide\n");
-				break;
+			if (move.has_value()) {
+				printf("I play: %c%c (%zu playouts per second)\n", move.value().first + 'A', move.value().second + '1', size_t(std::get<1>(rc)));
+
+				b.put(move.value().first, move.value().second, player);
 			}
 
 			delete root;
-
-			printf("I play: %c%c (%zu playouts per second)\n", move.value().first + 'A', move.value().second + '1', size_t(std::get<1>(rc)));
-
-			b.put(move.value().first, move.value().second, player);
 		}
 
 		player = player == board::white ? board::black : board::white;
@@ -90,16 +87,13 @@ void autoplay(void)
 		uct_node *root = nullptr;
 		auto      rc   = calculate_move(b, player, now + 1000, now + 1000, &root);
 		auto      move = std::get<0>(rc);
-		if (move.has_value() == false) {
-			printf("Can't decide\n");
-			break;
+		if (move.has_value()) {
+			printf("I play: %c%c (%zu playouts per second)\n", move.value().first + 'A', move.value().second + '1', size_t(std::get<1>(rc)));
+
+			b.put(move.value().first, move.value().second, player);
 		}
 
 		delete root;
-
-		printf("I play: %c%c (%zu playouts per second)\n", move.value().first + 'A', move.value().second + '1', size_t(std::get<1>(rc)));
-
-		b.put(move.value().first, move.value().second, player);
 
 		player = player == board::white ? board::black : board::white;
 	}

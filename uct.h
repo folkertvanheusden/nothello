@@ -49,6 +49,7 @@ public:
 	const uct_node *best_child() const;
 	auto         get_children() const;
 
+	bool         has_causing_move() const;  // or pass
 	const std::pair<int, int>  get_causing_move() const;
 
 	void         update_stats(const uint64_t visited, const double score);
@@ -58,4 +59,4 @@ public:
 	uct_node    *find_position(const board & which);
 };
 
-std::tuple<std::optional<std::pair<int, int> >, uint64_t, uint64_t, std::vector<std::tuple<std::pair<int, int> , uint64_t, double> > > calculate_move(const board & b, const board::disk p, const uint64_t think_end_time, const uint64_t think_end_time_extra, uct_node **const root);
+std::tuple<std::optional<std::pair<int, int> >, uint64_t, uint64_t, std::vector<std::tuple<std::optional<std::pair<int, int> >, uint64_t, double> > > calculate_move(const board & b, const board::disk p, const uint64_t think_end_time, const uint64_t think_end_time_extra, uct_node **const root);
