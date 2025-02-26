@@ -1,6 +1,6 @@
 {
     "games": 100,
-    "concurrency": 1,
+    "concurrency": 5,
     "ratinginterval": 10,
     "verbose": false,
     "debug": false,
@@ -36,7 +36,7 @@
         "confidence": 0.95
     },
     "pgn": {
-        "enabled": false,
+        "enabled": true,
         "verbose": true,
         "override": false,
         "colour1": "White",
@@ -48,6 +48,11 @@
         {
             "name": "brothello",
             "path": "build/brothello",
+            "parameters": "-m ugi"
+        },
+        {
+            "name": "samei",
+            "path": "build/samei",
             "parameters": "-m ugi"
         },
         {
