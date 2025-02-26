@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
-project(brothello)
+project(samei)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -15,17 +15,18 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 add_compile_options(-Wall)
 
 add_executable(
-  brothello-test
+  samei-test
   board.cpp
   str.cpp
   test.cpp
 )
 
 add_executable(
-  brothello
+  samei
   board.cpp
   game.cpp
   random.cpp
+  search.cpp
   str.cpp
   time.cpp
   ugi.cpp
@@ -34,11 +35,11 @@ add_executable(
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads)
-target_link_libraries(brothello Threads::Threads)
+target_link_libraries(samei Threads::Threads)
 
 include(FindPkgConfig)
 
 pkg_check_modules(READLINE REQUIRED readline)
-target_link_libraries(brothello ${READLINE_LIBRARIES})
-target_include_directories(brothello PUBLIC ${READLINE_INCLUDE_DIRS})
-target_compile_options(brothello PUBLIC ${READLINE_CFLAGS_OTHER})
+target_link_libraries(samei ${READLINE_LIBRARIES})
+target_include_directories(samei PUBLIC ${READLINE_INCLUDE_DIRS})
+target_compile_options(samei PUBLIC ${READLINE_CFLAGS_OTHER})

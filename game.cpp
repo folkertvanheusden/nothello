@@ -6,6 +6,7 @@
 
 #include "board.h"
 #include "random.h"
+#include "search.h"
 #include "time.h"
 #include "ugi.h"
 
@@ -51,7 +52,7 @@ void console_mode()
 			b.put(x, y, player);
 		}
 		else {
-			auto move = generate_move(b, player);
+			auto move = generate_search_move(b, player, 1000);
 			if (move.has_value()) {
 				printf("I play: %c%c\n", move.value().first + 'A', move.value().second + '1');
 				b.put(move.value().first, move.value().second, player);
@@ -71,7 +72,7 @@ void autoplay()
 	board::disk player = board::white;
 
 	for(;;) {
-		auto move = generate_move(b, player);
+		auto move = generate_search_move(b, player, 500);
 		if (move.has_value()) {
 			printf("I play: %c%c\n", move.value().first + 'A', move.value().second + '1');
 			b.put(move.value().first, move.value().second, player);
@@ -94,7 +95,7 @@ void make_openings(int depth, int n)
 		board::disk player = board::white;
 
 		for(int d=0; d<depth; d++) {
-			auto move = generate_move(b, player);
+			auto move = generate_random_move(b, player);
 			if (move.has_value() == false)
 				break;
 
@@ -108,7 +109,7 @@ void make_openings(int depth, int n)
 
 void help()
 {
-	printf("Brothello is (C) by folkert van heusden\n\n");
+	printf("Samei is (C) by folkert van heusden\n\n");
 	printf("-m mode  console/autoplay/ugi/make-openings\n");
 	printf("-d x     \"make-openings\" requires a depth\n");
 	printf("-n x     \"make-openings\" requires a count\n");

@@ -3,6 +3,7 @@
 
 #include "board.h"
 #include "random.h"
+#include "search.h"
 #include "str.h"
 #include "time.h"
 
@@ -43,7 +44,7 @@ void ugi()
 			continue;
 
 		if (parts[0] == "ugi") {
-                        send("id name Nothello\n");
+                        send("id name Samie\n");
                         send("id author Folkert van Heusden\n");
                         send("ugiok\n");
                 }
@@ -162,7 +163,7 @@ void ugi()
                         if (think_time > 50)
                                 think_time -= 50;
 
-			auto move = generate_move(*b, player);
+			auto move = generate_search_move(*b, player, think_time);
 			if (move.has_value() == false)
 				send("bestmove 0000\n");
 			else {

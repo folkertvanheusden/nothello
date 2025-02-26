@@ -21,7 +21,7 @@ thread_local std::mt19937_64 gen { mt_seed };
 
 thread_local auto rng = std::default_random_engine {};
 
-std::optional<std::pair<int, int> > generate_move(const board & b, const board::disk player)
+std::optional<std::pair<int, int> > generate_random_move(const board & b, const board::disk player)
 {
 	auto moves = b.get_valid(player);
 	if (moves.empty())
