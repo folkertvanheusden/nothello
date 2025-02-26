@@ -5,10 +5,8 @@
 #include <readline/readline.h>
 
 #include "board.h"
-#include "playout.h"
 #include "random.h"
 #include "time.h"
-#include "uct.h"
 #include "ugi.h"
 
 
@@ -53,17 +51,11 @@ void console_mode()
 			b.put(x, y, player);
 		}
 		else {
-			uint64_t  now  = get_ts_ms();
-			uct_node *root = nullptr;
-			auto      rc   = calculate_move(b, player, now + 1000, now + 1000, &root);
-			auto      move = std::get<0>(rc);
+			auto move = generate_move(b, player);
 			if (move.has_value()) {
-				printf("I play: %c%c (%zu playouts per second)\n", move.value().first + 'A', move.value().second + '1', size_t(std::get<1>(rc)));
-
+				printf("I play: %c%c\n", move.value().first + 'A', move.value().second + '1');
 				b.put(move.value().first, move.value().second, player);
 			}
-
-			delete root;
 		}
 
 		player = player == board::white ? board::black : board::white;
@@ -79,26 +71,25 @@ void autoplay(void)
 	board::disk player = board::white;
 
 	for(;;) {
-		auto valid_moves = b.get_valid(player);
-		if (valid_moves.empty())
-			break;
-
-		uint64_t  now  = get_ts_ms();
-		uct_node *root = nullptr;
-		auto      rc   = calculate_move(b, player, now + 1000, now + 1000, &root);
-		auto      move = std::get<0>(rc);
+		auto move = generate_move(b, player);
 		if (move.has_value()) {
-			printf("I play: %c%c (%zu playouts per second)\n", move.value().first + 'A', move.value().second + '1', size_t(std::get<1>(rc)));
-
+			printf("I play: %c%c\n", move.value().first + 'A', move.value().second + '1');
 			b.put(move.value().first, move.value().second, player);
 		}
-
-		delete root;
+		else {
+			break;
+		}
 
 		player = player == board::white ? board::black : board::white;
 	}
 
 	b.dump();
+}
+
+void help()
+{
+	printf("Brothello is (C) by folkert van heusden\n\n");
+	printf("-m mode  console/autoplay/ugi\n");
 }
 
 int main(int argc, char *argv[])
@@ -109,6 +100,10 @@ int main(int argc, char *argv[])
 	while((c = getopt(argc, argv, "m:")) != -1) {
 		if (c == 'm')
 			mode = optarg;
+		else if (c == 'h') {
+			help();
+			return 0;
+		}
 	}
 
 	if (mode == "console")

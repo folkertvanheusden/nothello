@@ -2,7 +2,7 @@
 #include <cstdarg>
 
 #include "board.h"
-#include "uct.h"
+#include "random.h"
 #include "str.h"
 #include "time.h"
 
@@ -162,18 +162,13 @@ void ugi()
                         if (think_time > 50)
                                 think_time -= 50;
 
-			uct_node *root = nullptr;
-			auto      rc   = calculate_move(*b, player, now + think_time, now + think_time * 1.05, &root);
-			auto      move = std::get<0>(rc);
-			if (move.has_value() == false) {
+			auto move = generate_move(*b, player);
+			if (move.has_value() == false)
 				send("bestmove 0000\n");
-			}
 			else {
 				b->put(move.value().first, move.value().second, player);
 				send("bestmove %c%c\n", move.value().first + 'a', move.value().second + '1');
 			}
-
-			delete root;
 
 			player = player == board::black ? board::white : board::black;
                 }
