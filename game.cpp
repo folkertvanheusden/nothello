@@ -65,7 +65,7 @@ void console_mode()
 	printf("score for black: %d\n", b.get_score(board::black));
 }
 
-void autoplay(void)
+void autoplay()
 {
 	board       b(true);
 	board::disk player = board::white;
@@ -86,20 +86,48 @@ void autoplay(void)
 	b.dump();
 }
 
+void make_openings(int depth, int n)
+{
+	for(int count=0; count<n; count++)
+	{
+		board       b(true);
+		board::disk player = board::white;
+
+		for(int d=0; d<depth; d++) {
+			auto move = generate_move(b, player);
+			if (move.has_value() == false)
+				break;
+
+			b.put(move.value().first, move.value().second, player);
+			player = player == board::white ? board::black : board::white;
+		}
+
+		printf("%s\n", b.emit_fen(player).c_str());
+	}
+}
+
 void help()
 {
 	printf("Brothello is (C) by folkert van heusden\n\n");
-	printf("-m mode  console/autoplay/ugi\n");
+	printf("-m mode  console/autoplay/ugi/make-openings\n");
+	printf("-d x     \"make-openings\" requires a depth\n");
+	printf("-n x     \"make-openings\" requires a count\n");
 }
 
 int main(int argc, char *argv[])
 {
 	std::string mode = "console";
+	int depth = 5;
+	int count = 1000;
 	int c = -1;
 
-	while((c = getopt(argc, argv, "m:h")) != -1) {
+	while((c = getopt(argc, argv, "m:d:n:h")) != -1) {
 		if (c == 'm')
 			mode = optarg;
+		else if (c == 'd')
+			depth = atoi(optarg);
+		else if (c == 'n')
+			count = atoi(optarg);
 		else if (c == 'h') {
 			help();
 			return 0;
@@ -112,6 +140,8 @@ int main(int argc, char *argv[])
 		autoplay();
 	else if (mode == "ugi")
 		ugi();
+	else if (mode == "make-openings")
+		make_openings(depth, count);
 	else
 		printf("Do not understand \"%s\"\n", mode.c_str());
 
