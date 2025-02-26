@@ -78,6 +78,12 @@ void ugi()
 			else
 				send("response draw\n");
 		}
+                else if (parts.at(0) == "moves") {
+			auto valid_moves = b->get_valid(player);
+			for(auto & move: valid_moves)
+				send("%c%c ", move.first + 'a', move.second + '1');
+			send("\n");
+		}
                 else if (parts.at(0) == "position") {
                         bool moves = false;
 
