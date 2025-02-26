@@ -1,0 +1,59 @@
+{
+    "games": 100,
+    "concurrency": 1,
+    "ratinginterval": 10,
+    "verbose": false,
+    "debug": false,
+    "recover": false,
+    "tournament": "roundrobin",
+    "protocol": {
+        "askturn": true
+    },
+    "openings": {
+        "path": "othello-openings.txt",
+        "repeat": true,
+        "shuffle": false
+    },
+    "adjudication": {
+        "timeoutbuffer": 25,
+        "maxfullmoves": 300
+    },
+    "timecontrol": {
+        "type": "clock",
+        "time": 1000,
+        "increment": 10
+    },
+    "options": {
+        "debug": "false",
+        "threads": "1",
+        "hash": "128",
+        "ownbook": "false"
+    },
+    "sprt": {
+        "enabled": false,
+        "elo0": 0.0,
+        "elo1": 5.0,
+        "confidence": 0.95
+    },
+    "pgn": {
+        "enabled": false,
+        "verbose": true,
+        "override": false,
+        "colour1": "White",
+        "colour2": "Black",
+        "path": "games.pgn",
+        "event": "?"
+    },
+    "engines": [
+        {
+            "name": "brothello",
+            "path": "build/brothello",
+            "parameters": "-m ugi"
+        },
+        {
+            "name": "nothello",
+            "path": "build/nothello",
+            "parameters": "-m ugi"
+        }
+    ]
+}

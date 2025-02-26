@@ -12,8 +12,6 @@
 #include "uct.h"
 
 
-thread_local auto rng = std::default_random_engine {};
-
 uct_node::uct_node(uct_node *const parent, board & position, const board::disk player, const std::optional<std::pair<int, int> > & causing_move) :
 	parent(parent),
 	position(std::move(position)),
