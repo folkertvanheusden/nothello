@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 	std::string mode = "console";
 	int c = -1;
 
-	while((c = getopt(argc, argv, "m:")) != -1) {
+	while((c = getopt(argc, argv, "m:h")) != -1) {
 		if (c == 'm')
 			mode = optarg;
 		else if (c == 'h') {
