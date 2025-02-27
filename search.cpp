@@ -1,4 +1,6 @@
 #include <atomic>
+#include <cassert>
+#include <cinttypes>
 #include <optional>
 #include <thread>
 #include <vector>
@@ -75,7 +77,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 
 	auto moves = b.get_valid(player);
 	std::optional<std::pair<int, int> > best_move;
-	int best_score = -10000;
+	int best_score = -32767;
 	for(auto & move: moves) {
 		board new_position(b);
 		new_position.put(move.first, move.second, player);
@@ -117,6 +119,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
                 else if (best_score >= beta)
                         flag = LOWERBOUND;
 
+		assert(best_score > -32767);
 		int work_score = eval_to_tt(best_score, csd);
 
                 tti.store(hash, flag, depth, work_score, best_move);
@@ -131,7 +134,7 @@ static void timer(const int think_time, std::atomic_bool *const stop)
                 auto end_time = std::chrono::high_resolution_clock::now() += std::chrono::milliseconds{think_time};
 
 		// TODO replace by condition_variable
-		while(std::chrono::high_resolution_clock::now() < end_time)
+		while(std::chrono::high_resolution_clock::now() < end_time && *stop == false)
 			usleep(10000);
         }
 
@@ -220,6 +223,9 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 	stop = true;
 	think_timeout_timer->join();
 	delete think_timeout_timer;
+
+	uint64_t global_end_t = get_ts_ms();
+	printf("info string used %" PRIu64 " ms of %d ms\n", global_end_t - global_start_t, search_time);
 
 	return best_move;
 }
