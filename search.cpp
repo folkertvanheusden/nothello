@@ -1,4 +1,6 @@
 #include <atomic>
+#include <cassert>
+#include <cinttypes>
 #include <optional>
 #include <thread>
 #include <vector>
@@ -79,7 +81,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 
 	auto moves = b.get_valid(player);
 	std::optional<std::pair<int, int> > best_move;
-	int best_score = -10000;
+	int best_score = -32767;
 	for(auto & move: moves) {
 		board new_position(b);
 		new_position.put(move.first, move.second, player);
@@ -99,8 +101,8 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		}
 	}
 
-	if (best_move.has_value() == false) {
-		if (b.get_valid(opponent_color(player)).empty() == true && moves.empty() == true) {
+	if (best_score == -32767) {
+		if (b.get_valid(opponent_color(player)).empty() == true) {
 			int score = evaluate(b, player);
 			if (score < 0)
 				best_score = -10000 + csd;
@@ -110,7 +112,10 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 				best_score = 0;
 		}
 		else {
-			best_score = evaluate(b, player);
+			board new_position(b);
+			auto rc = search(new_position, opponent_color(player), max_depth, depth - 1, -beta, -alpha, stop);
+			best_score = -rc.first;
+			best_move = rc.second;
 		}
 	}
 
@@ -121,6 +126,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
                 else if (best_score >= beta)
                         flag = LOWERBOUND;
 
+		assert(best_score > -32767);
 		int work_score = eval_to_tt(best_score, csd);
 
                 tti.store(hash, flag, depth, work_score, best_move);
@@ -135,13 +141,30 @@ static void timer(const int think_time, std::atomic_bool *const stop)
                 auto end_time = std::chrono::high_resolution_clock::now() += std::chrono::milliseconds{think_time};
 
 		// TODO replace by condition_variable
-		while(std::chrono::high_resolution_clock::now() < end_time)
+		while(std::chrono::high_resolution_clock::now() < end_time && *stop == false)
 			usleep(10000);
         }
 
 	*stop = true;
 }
 
+std::string gen_pv_str_from_tt(const board & b, const std::optional<std::pair<int, int> > & first_move, const board::disk player)
+{
+	auto pv = get_pv_from_tt(b, first_move, player);
+	std::string pv_str;
+	for(auto & move : pv) {
+		if (pv_str.empty() == false)
+			pv_str += " ";
+		if (move.has_value()) {
+			pv_str += char('a' + move.value().first);
+			pv_str += char('1' + move.value().second);
+		}
+		else {
+			pv_str += "0000";
+		}
+	}
+	return pv_str;
+}
 
 std::optional<std::pair<int, int> > generate_search_move(const board & b, const board::disk player, const int search_time)
 {
@@ -151,9 +174,12 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 
 	int alpha = -10000;
 	int beta = 10000;
+	int add_alpha = 15;
+	int add_beta = 15;
 	int d = 1;
 	std::optional<std::pair<int, int> > best_move;
-	int best_score = -10000;
+	int alpha_repeat = 0;
+	int beta_repeat = 0;
 
 	for(;;) {
 		uint64_t start_t = get_ts_ms();
@@ -161,11 +187,40 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 		uint64_t end_t = get_ts_ms();
 		if (stop)
 			break;
+		int score = rc.first;
 
-		best_move = rc.second;
-		best_score = rc.first;
+		printf("info depth %d score cp %d pv %s\n", d, score, gen_pv_str_from_tt(b, rc.second, player).c_str());
 
-		d++;
+		if (score <= alpha) {
+			if (alpha_repeat >= 3)
+				alpha = -10000;
+			else {
+				beta = (alpha + beta) / 2;
+				alpha = score - add_alpha;
+				if (alpha < -10000)
+					alpha = -10000;
+				add_alpha += add_alpha / 5 + 1;
+
+				alpha_repeat++;
+			}
+		}
+		else if (score >= beta) {
+			if (beta_repeat >= 3)
+				beta = 10000;
+			else {
+				alpha = (alpha + beta) / 2;
+				beta = score + add_beta;
+				if (beta > 10000)
+					beta = 10000;
+				add_beta += add_beta / 5 + 1;
+
+				beta_repeat++;
+			}
+		}
+		else {
+			d++;
+			best_move = rc.second;
+		}
 
 		int64_t time_left = search_time - (end_t - global_start_t);
 		if (end_t - start_t > time_left / 2)
@@ -175,6 +230,9 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 	stop = true;
 	think_timeout_timer->join();
 	delete think_timeout_timer;
+
+	uint64_t global_end_t = get_ts_ms();
+	printf("info string used %" PRIu64 " ms of %d ms\n", global_end_t - global_start_t, search_time);
 
 	return best_move;
 }

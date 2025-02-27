@@ -1,6 +1,9 @@
 #include <cstdint>
 #include <optional>
 #include <utility>
+#include <vector>
+
+#include "board.h"
 
 
 typedef enum { NOTVALID = 0, EXACT = 1, LOWERBOUND = 2, UPPERBOUND = 3 } tt_entry_flag;
@@ -34,3 +37,4 @@ public:
 
 int eval_from_tt(const int eval, const int ply);
 int eval_to_tt(const int eval, const int ply);
+std::vector<std::optional<std::pair<int, int> > > get_pv_from_tt(const board & pos_in, const std::optional<std::pair<int, int> > & start_move, const board::disk player);

@@ -72,7 +72,7 @@ void autoplay()
 	board::disk player = board::white;
 
 	for(;;) {
-		auto move = generate_search_move(b, player, 500);
+		auto move = generate_search_move(b, player, 750);
 		if (move.has_value()) {
 			printf("I play: %c%c\n", move.value().first + 'A', move.value().second + '1');
 			b.put(move.value().first, move.value().second, player);

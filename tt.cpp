@@ -67,3 +67,39 @@ int eval_from_tt(const int eval, const int ply)
                 return eval + ply;
         return eval;
 }
+
+std::vector<std::optional<std::pair<int, int> > > get_pv_from_tt(const board & pos_in, const std::optional<std::pair<int, int> > & start_move, const board::disk player)
+{
+	extern tt tti;
+
+	board work(pos_in);
+	if (start_move.has_value())
+		work.put(start_move.value().first, start_move.value().second, player);
+	auto current_player = opponent_color(player);
+
+	std::vector<std::optional<std::pair<int, int> > > out { start_move };
+
+	for(int i=0; i<64; i++) {
+		uint64_t hash = calculate_zobrist(work, current_player);
+		std::optional<tt_entry> te = tti.lookup(hash);
+		if (!te.has_value())
+			break;
+
+		if (work.is_valid(te.value().x, te.value().y, current_player) == false)
+			break;
+
+		if (te.value().move_valid) {
+			int x = te.value().x;
+			int y = te.value().y;
+			work.put(x, y, current_player);
+			out.push_back({ { x, y } });
+		}
+		else {
+			out.push_back({ });
+		}
+
+		current_player = opponent_color(current_player);
+	}
+
+	return out;
+}
