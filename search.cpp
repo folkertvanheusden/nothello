@@ -31,7 +31,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		board new_position(b);
 		new_position.put(move.first, move.second, player);
 
-		auto rc = search(new_position, opponent_color(player), - 1, -beta, -alpha, stop);
+		auto rc = search(new_position, opponent_color(player), depth - 1, -beta, -alpha, stop);
 		int score = -rc.first;
 
 		if (score > best_score) {
@@ -47,7 +47,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 	}
 
 	if (best_move.has_value() == false)
-		return { -1000, { } };
+		return { -1000, { } };  // TODO score
 
 	return { best_score, best_move };
 }
