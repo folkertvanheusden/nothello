@@ -28,7 +28,7 @@ void ugi()
 	board::disk player = board::black;
 
 	for(;;) {
-		char buffer[4096];
+		char buffer[65536];
 		if (fgets(buffer, sizeof buffer, stdin) == nullptr)
 			break;
 
