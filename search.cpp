@@ -47,7 +47,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 	}
 
 	if (best_move.has_value() == false)
-		return { -1000, { } };  // TODO score
+		return { 0, { } };  // TODO score
 
 	return { best_score, best_move };
 }
