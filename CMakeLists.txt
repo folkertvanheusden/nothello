@@ -29,7 +29,9 @@ add_executable(
   search.cpp
   str.cpp
   time.cpp
+  tt.cpp
   ugi.cpp
+  zobrist.cpp
 )
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)

@@ -4,7 +4,11 @@
 #include <vector>
 
 #include "board.h"
+#include "tt.h"
+#include "zobrist.h"
 
+
+tt tti;
 
 static int evaluate(const board & b, const board::disk player)
 {
@@ -32,13 +36,32 @@ static int evaluate(const board & b, const board::disk player)
 	return score;
 }
 
-static std::pair<int, std::optional<std::pair<int, int> > > search(const board & b, const board::disk player, const int depth, int alpha, int beta, std::atomic_bool *const stop)
+static std::pair<int, std::optional<std::pair<int, int> > > search(const board & b, const board::disk player, const int max_depth, const int depth, int alpha, int beta, std::atomic_bool *const stop)
 {
 	if (depth == 0)
 		return { evaluate(b, player), { } };
 
 	if (*stop)
 		return { 0, { } };
+
+	int start_alpha = alpha;
+
+	uint64_t hash = calculate_zobrist(b, player);
+	bool is_top = depth == max_depth;
+	if (!is_top) {
+		std::optional<tt_entry> te = tti.lookup(hash);
+		if (te.has_value()) {
+			if (te.value().depth >= depth) {
+				if (te.value().move_valid) {
+					int x = te.value().x;
+					int y = te.value().y;
+					return { te.value().score, { { x, y } } };
+				}
+
+				return { te.value().score, { } };
+			}
+		}
+	}
 
 	auto moves = b.get_valid(player);
 	std::optional<std::pair<int, int> > best_move;
@@ -47,7 +70,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		board new_position(b);
 		new_position.put(move.first, move.second, player);
 
-		auto rc = search(new_position, opponent_color(player), depth - 1, -beta, -alpha, stop);
+		auto rc = search(new_position, opponent_color(player), max_depth, depth - 1, -beta, -alpha, stop);
 		int score = -rc.first;
 
 		if (score > best_score) {
@@ -61,6 +84,16 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 			}
 		}
 	}
+
+        if (*stop == false) {
+                tt_entry_flag flag = EXACT;
+                if (best_score <= start_alpha)
+                        flag = UPPERBOUND;
+                else if (best_score >= beta)
+                        flag = LOWERBOUND;
+
+                tti.store(hash, flag, depth, best_score, best_move);
+        }
 
 	if (best_move.has_value() == false)
 		return { 0, { } };  // TODO score
@@ -95,7 +128,7 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 	int best_score = -1000;
 
 	for(;;) {
-		auto rc = search(b, player, d, alpha, beta, &stop);
+		auto rc = search(b, player, d, d, alpha, beta, &stop);
 		if (stop)
 			break;
 
