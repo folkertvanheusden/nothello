@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "board.h"
+#include "time.h"
 #include "tt.h"
 #include "zobrist.h"
 
@@ -141,7 +142,7 @@ static void timer(const int think_time, std::atomic_bool *const stop)
 std::optional<std::pair<int, int> > generate_search_move(const board & b, const board::disk player, const int search_time)
 {
 	std::atomic_bool stop { false };
-
+	uint64_t global_start_t = get_ts_ms();
 	auto think_timeout_timer = new std::thread([search_time, &stop] { timer(search_time, &stop); });
 
 	int alpha = -10000;
@@ -151,7 +152,9 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 	int best_score = -10000;
 
 	for(;;) {
+		uint64_t start_t = get_ts_ms();
 		auto rc = search(b, player, d, d, alpha, beta, &stop);
+		uint64_t end_t = get_ts_ms();
 		if (stop)
 			break;
 
@@ -159,6 +162,10 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 		best_score = rc.first;
 
 		d++;
+
+		int64_t time_left = search_time - (end_t - global_start_t);
+		if (end_t - start_t > time_left / 2)
+			break;
 	}
 
 	stop = true;
