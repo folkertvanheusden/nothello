@@ -93,11 +93,5 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 	think_timeout_timer->join();
 	delete think_timeout_timer;
 
-	if (best_move.has_value() == false) {
-		auto moves = b.get_valid(player);
-		if (moves.empty() == false)
-			best_move = moves.at(0);
-	}
-
 	return best_move;
 }
