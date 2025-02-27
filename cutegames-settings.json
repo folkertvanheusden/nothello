@@ -1,10 +1,10 @@
 {
-    "games": 100,
-    "concurrency": 5,
+    "games": 500,
+    "concurrency": 31,
     "ratinginterval": 10,
     "verbose": false,
     "debug": false,
-    "recover": false,
+    "recover": true,
     "tournament": "roundrobin",
     "protocol": {
         "askturn": true
@@ -12,7 +12,7 @@
     "openings": {
         "path": "othello-openings.txt",
         "repeat": true,
-        "shuffle": false
+        "shuffle": true
     },
     "adjudication": {
         "timeoutbuffer": 25,
@@ -20,8 +20,8 @@
     },
     "timecontrol": {
         "type": "clock",
-        "time": 1000,
-        "increment": 10
+        "time": 15000,
+        "increment": 1000
     },
     "options": {
         "debug": "false",
@@ -45,6 +45,11 @@
         "event": "?"
     },
     "engines": [
+        {
+            "name": "Othello2",
+            "path": "/usr/local/games/othello2",
+            "parameters": "--ugi"
+        },
         {
             "name": "brothello",
             "path": "build/brothello",
