@@ -172,7 +172,7 @@ void ugi()
 			uct_node *root = nullptr;
 			auto      rc   = calculate_move(*b, player, now + think_time, now + think_time * 1.05, &root);
 			auto      move = std::get<0>(rc);
-			if (move.has_value() == false)
+			if (move.has_value() == false && pass_count >= 1)
 				move = generate_random_move(*b, player);
 			if (move.has_value() == false)
 				send("bestmove 0000\n");
