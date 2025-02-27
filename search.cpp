@@ -138,6 +138,23 @@ static void timer(const int think_time, std::atomic_bool *const stop)
 	*stop = true;
 }
 
+std::string gen_pv_str_from_tt(const board & b, const std::optional<std::pair<int, int> > & first_move, const board::disk player)
+{
+	auto pv = get_pv_from_tt(b, first_move, player);
+	std::string pv_str;
+	for(auto & move : pv) {
+		if (pv_str.empty() == false)
+			pv_str += " ";
+		if (move.has_value()) {
+			pv_str += char('a' + move.value().first);
+			pv_str += char('1' + move.value().second);
+		}
+		else {
+			pv_str += "0000";
+		}
+	}
+	return pv_str;
+}
 
 std::optional<std::pair<int, int> > generate_search_move(const board & b, const board::disk player, const int search_time)
 {
@@ -147,9 +164,12 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 
 	int alpha = -10000;
 	int beta = 10000;
+	int add_alpha = 15;
+	int add_beta = 15;
 	int d = 1;
 	std::optional<std::pair<int, int> > best_move;
-	int best_score = -10000;
+	int alpha_repeat = 0;
+	int beta_repeat = 0;
 
 	for(;;) {
 		uint64_t start_t = get_ts_ms();
@@ -157,17 +177,44 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 		uint64_t end_t = get_ts_ms();
 		if (stop)
 			break;
+		int score = rc.first;
 
-		best_move = rc.second;
-		best_score = rc.first;
+		printf("info depth %d score cp %d pv %s\n", d, score, gen_pv_str_from_tt(b, rc.second, player).c_str());
 
-		printf("info depth %d score cp %d\n", d, best_score);
+		if (score <= alpha) {
+			if (alpha_repeat >= 3)
+				alpha = -10000;
+			else {
+				beta = (alpha + beta) / 2;
+				alpha = score - add_alpha;
+				if (alpha < -10000)
+					alpha = -10000;
+				add_alpha += add_alpha / 5 + 1;
+
+				alpha_repeat++;
+			}
+		}
+		else if (score >= beta) {
+			if (beta_repeat >= 3)
+				beta = 10000;
+			else {
+				alpha = (alpha + beta) / 2;
+				beta = score + add_beta;
+				if (beta > 10000)
+					beta = 10000;
+				add_beta += add_beta / 5 + 1;
+
+				beta_repeat++;
+			}
+		}
+		else {
+			d++;
+			best_move = rc.second;
+		}
 
 		int64_t time_left = search_time - (end_t - global_start_t);
 		if (end_t - start_t > time_left / 2)
 			break;
-
-		d++;
 	}
 
 	stop = true;
