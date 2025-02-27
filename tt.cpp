@@ -32,6 +32,8 @@ std::optional<tt_entry> tt::lookup(const uint64_t hash)
 
 void tt::store(const uint64_t hash, const tt_entry_flag f, const int d, const int score, const std::optional<std::pair<int, int> > & m)
 {
+	if (d > 127)
+		return;
 	size_t index = tt_index(hash);
 
 	tt_entry new_entry { };
