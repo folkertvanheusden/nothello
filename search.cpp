@@ -46,12 +46,14 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 
 	int start_alpha = alpha;
 
+	const int csd = max_depth - depth;
 	uint64_t hash = calculate_zobrist(b, player);
 	bool is_top = depth == max_depth;
 	std::optional<tt_entry> te = tti.lookup(hash);
 	if (te.has_value()) {
 		if (te.value().depth >= depth) {
-			int  work_score = te.value().score;
+			int  score      = te.value().score;
+			int  work_score = eval_from_tt(score, csd);
 			auto flag       = te.value().flags;
 			bool use        = flag == EXACT ||
 				(flag == LOWERBOUND && work_score >= beta) ||
@@ -72,7 +74,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 
 	auto moves = b.get_valid(player);
 	std::optional<std::pair<int, int> > best_move;
-	int best_score = -1000;
+	int best_score = -10000;
 	for(auto & move: moves) {
 		board new_position(b);
 		new_position.put(move.first, move.second, player);
@@ -92,6 +94,21 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		}
 	}
 
+	if (best_move.has_value() == false) {
+		if (b.get_valid(opponent_color(player)).empty() == true && moves.empty() == true) {
+			int score = evaluate(b, player);
+			if (score < 0)
+				best_score = -10000;
+			else if (score > 0)
+				best_score = 10000;
+			else
+				best_score = 0;
+		}
+		else {
+			best_score = evaluate(b, player);
+		}
+	}
+
         if (*stop == false) {
                 tt_entry_flag flag = EXACT;
                 if (best_score <= start_alpha)
@@ -99,11 +116,10 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
                 else if (best_score >= beta)
                         flag = LOWERBOUND;
 
-                tti.store(hash, flag, depth, best_score, best_move);
-        }
+		int work_score = eval_to_tt(best_score, csd);
 
-	if (best_move.has_value() == false)
-		return { evaluate(b, player), { } };  // TODO score
+                tti.store(hash, flag, depth, work_score, best_move);
+        }
 
 	return { best_score, best_move };
 }
@@ -128,11 +144,11 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 
 	auto think_timeout_timer = new std::thread([search_time, &stop] { timer(search_time, &stop); });
 
-	int alpha = -1000;
-	int beta = 1000;
+	int alpha = -10000;
+	int beta = 10000;
 	int d = 1;
 	std::optional<std::pair<int, int> > best_move;
-	int best_score = -1000;
+	int best_score = -10000;
 
 	for(;;) {
 		auto rc = search(b, player, d, d, alpha, beta, &stop);

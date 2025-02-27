@@ -31,3 +31,6 @@ public:
         std::optional<tt_entry> lookup(const uint64_t board_hash);
         void store(const uint64_t hash, const tt_entry_flag f, const int d, const int score, const std::optional<std::pair<int, int> > & m);
 };
+
+int eval_from_tt(const int eval, const int ply);
+int eval_to_tt(const int eval, const int ply);

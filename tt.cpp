@@ -47,3 +47,21 @@ void tt::store(const uint64_t hash, const tt_entry_flag f, const int d, const in
 
 	entries[index] = new_entry;
 }
+
+int eval_to_tt(const int eval, const int ply)
+{
+        if (eval > 9800)
+                return eval + ply;
+        if (eval < -9800)
+                return eval - ply;
+        return eval;
+}
+
+int eval_from_tt(const int eval, const int ply)
+{
+        if (eval > 9800)
+                return eval - ply;
+        if (eval < -9800)
+                return eval + ply;
+        return eval;
+}
