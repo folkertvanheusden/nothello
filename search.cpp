@@ -35,7 +35,7 @@ static int evaluate(const board & b, const board::disk player)
 	score += (scores_corners[board::black] - scores_corners[board::white]) * 3;
 
 	// mobility
-	score += b.get_valid(board::black).size() -  b.get_valid(board::white).size() * 2;
+	score += (b.get_valid(board::black).size() -  b.get_valid(board::white).size()) * 2;
 
 	if (player != board::black)
 		return -score;
