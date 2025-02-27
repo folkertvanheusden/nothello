@@ -173,6 +173,8 @@ void board::scan_and_flip(const int start_x, const int start_y, const int dx, co
 
 void board::put(const int x, const int y, const disk cur)
 {
+	assert(x >= 0 && x < 8);
+	assert(y >= 0 && y < 8);
 	assert(disks[y][x] == empty);
 	disks[y][x] = cur;
 
