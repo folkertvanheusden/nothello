@@ -25,8 +25,9 @@ void send(const std::string & fmt, ...)
 
 void ugi()
 {
-	board      *b      = new board(true);
-	board::disk player = board::black;
+	board      *b          = new board(true);
+	board::disk player     = board::black;
+	int         pass_count = 0;
 
 	for(;;) {
 		char buffer[4096];
@@ -86,6 +87,7 @@ void ugi()
 		}
                 else if (parts.at(0) == "position") {
                         bool moves = false;
+			pass_count = 0;
 
                         for(size_t i=1; i<parts.size();) {
                                 if (parts.at(i) == "fen") {
@@ -113,8 +115,12 @@ void ugi()
 					if (parts[i] != "0000") {
 						int x = tolower(parts[i][0]) - 'a';
 						int y = parts[i][1] - '1';
-
 						b->put(x, y, player);
+
+						pass_count = 0;
+					}
+					else {
+						pass_count++;
 					}
 
 					player = player == board::black ? board::white : board::black;
@@ -170,8 +176,18 @@ void ugi()
                                 think_time -= 50;
 
 			auto move = generate_search_move(*b, player, think_time);
-			if (move.has_value() == false)
-				send("bestmove 0000\n");
+			if (move.has_value() == false) {
+				if (pass_count >= 1) {
+					auto rmove = generate_random_move(*b, player);
+					if (rmove.has_value() == false)
+						send("bestmove 0000\n");
+					else
+						send("bestmove %c%c\n", rmove.value().first + 'a', rmove.value().second + '1');
+				}
+				else {
+					send("bestmove 0000\n");
+				}
+			}
 			else {
 				b->put(move.value().first, move.value().second, player);
 				send("bestmove %c%c\n", move.value().first + 'a', move.value().second + '1');
