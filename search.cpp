@@ -13,6 +13,7 @@ tt tti;
 
 static int evaluate(const board & b, const board::disk player)
 {
+	// material
 	int score = b.get_score(board::black) * 10;
 
 	int scores_borders[3] { };
@@ -30,6 +31,9 @@ static int evaluate(const board & b, const board::disk player)
 	scores_corners[b.get(0, 7)]++;
 	scores_corners[b.get(7, 7)]++;
 	score += (scores_corners[board::black] - scores_corners[board::white]) * 3;
+
+	// mobility
+	score += b.get_valid(board::black).size() -  b.get_valid(board::white).size() * 2;
 
 	if (player != board::black)
 		return -score;
