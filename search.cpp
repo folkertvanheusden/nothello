@@ -8,7 +8,23 @@
 
 static int evaluate(const board & b, const board::disk player)
 {
-	int score = b.get_score(board::black);
+	int score = b.get_score(board::black) * 10;
+
+	int scores_borders[3] { };
+	for(int i=0; i<8; i++) {
+		scores_borders[b.get(0, i)]++;
+		scores_borders[b.get(7, i)]++;
+		scores_borders[b.get(i, 0)]++;
+		scores_borders[b.get(i, 7)]++;
+	}
+	score += scores_borders[board::black] - scores_borders[board::white];
+
+	int scores_corners[3] { };
+	scores_corners[b.get(0, 0)]++;
+	scores_corners[b.get(7, 0)]++;
+	scores_corners[b.get(0, 7)]++;
+	scores_corners[b.get(7, 7)]++;
+	score += (scores_corners[board::black] - scores_corners[board::white]) * 3;
 
 	if (player != board::black)
 		return -score;
