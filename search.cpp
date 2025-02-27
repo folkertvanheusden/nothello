@@ -98,9 +98,9 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		if (b.get_valid(opponent_color(player)).empty() == true && moves.empty() == true) {
 			int score = evaluate(b, player);
 			if (score < 0)
-				best_score = -10000;
+				best_score = -10000 + csd;
 			else if (score > 0)
-				best_score = 10000;
+				best_score = 10000 - csd;
 			else
 				best_score = 0;
 		}
