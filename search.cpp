@@ -161,11 +161,13 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 		best_move = rc.second;
 		best_score = rc.first;
 
-		d++;
+		printf("info depth %d score cp %d\n", d, best_score);
 
 		int64_t time_left = search_time - (end_t - global_start_t);
 		if (end_t - start_t > time_left / 2)
 			break;
+
+		d++;
 	}
 
 	stop = true;
