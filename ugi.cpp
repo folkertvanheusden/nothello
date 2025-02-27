@@ -176,18 +176,10 @@ void ugi()
                                 think_time -= 50;
 
 			auto move = generate_search_move(*b, player, think_time);
-			if (move.has_value() == false) {
-				if (pass_count >= 1) {
-					auto rmove = generate_random_move(*b, player);
-					if (rmove.has_value() == false)
-						send("bestmove 0000\n");
-					else
-						send("bestmove %c%c\n", rmove.value().first + 'a', rmove.value().second + '1');
-				}
-				else {
-					send("bestmove 0000\n");
-				}
-			}
+			if (move.has_value() == false && pass_count >= 1)
+				move = generate_random_move(*b, player);
+			if (move.has_value() == false)
+				send("bestmove 0000\n");
 			else {
 				b->put(move.value().first, move.value().second, player);
 				send("bestmove %c%c\n", move.value().first + 'a', move.value().second + '1');
