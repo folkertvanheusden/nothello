@@ -24,7 +24,7 @@ std::optional<tt_entry> tt::lookup(const uint64_t hash)
 {
 	size_t index = tt_index(hash);
 
-	if (entries[index].hash != 0xffffffff)
+	if (entries[index].hash != (hash & 0xffffffff))
 		return { };
 
 	return entries[index];

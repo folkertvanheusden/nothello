@@ -48,17 +48,24 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 
 	uint64_t hash = calculate_zobrist(b, player);
 	bool is_top = depth == max_depth;
-	if (!is_top) {
-		std::optional<tt_entry> te = tti.lookup(hash);
-		if (te.has_value()) {
-			if (te.value().depth >= depth) {
+	std::optional<tt_entry> te = tti.lookup(hash);
+	if (te.has_value()) {
+		if (te.value().depth >= depth) {
+			int  work_score = te.value().score;
+			auto flag       = te.value().flags;
+			bool use        = flag == EXACT ||
+				(flag == LOWERBOUND && work_score >= beta) ||
+				(flag == UPPERBOUND && work_score <= alpha);
+
+			if (use) {
 				if (te.value().move_valid) {
 					int x = te.value().x;
 					int y = te.value().y;
-					return { te.value().score, { { x, y } } };
+					return { work_score, { { x, y } } };
 				}
 
-				return { te.value().score, { } };
+				if (!is_top)
+					return { work_score, { } };
 			}
 		}
 	}
@@ -96,7 +103,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
         }
 
 	if (best_move.has_value() == false)
-		return { 0, { } };  // TODO score
+		return { evaluate(b, player), { } };  // TODO score
 
 	return { best_score, best_move };
 }
