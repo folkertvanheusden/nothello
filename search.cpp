@@ -97,7 +97,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		}
 	}
 
-	if (best_move.has_value() == false) {
+	if (best_score == -32767) {
 		if (b.get_valid(opponent_color(player)).empty() == true) {
 			int score = evaluate(b, player);
 			if (score < 0)
@@ -108,7 +108,10 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 				best_score = 0;
 		}
 		else {
-			best_score = evaluate(b, player);
+			board new_position(b);
+			auto rc = search(new_position, opponent_color(player), max_depth, depth - 1, -beta, -alpha, stop);
+			best_score = -rc.first;
+			best_move = rc.second;
 		}
 	}
 
