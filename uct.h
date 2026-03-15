@@ -35,7 +35,7 @@ private:
 	void      reset_parent() { parent = nullptr; }
 
 public:
-	uct_node(uct_node *const parent, board & position, const board::disk player, const std::optional<std::pair<int, int> > & causing_move);
+	uct_node(uct_node *const parent, const board & position, const board::disk player, const std::optional<std::pair<int, int> > & causing_move);
 	virtual ~uct_node();
 
 	bool         is_game_over() const { return game_over; }

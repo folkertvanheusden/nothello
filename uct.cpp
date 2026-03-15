@@ -12,7 +12,7 @@
 #include "uct.h"
 
 
-uct_node::uct_node(uct_node *const parent, board & position, const board::disk player, const std::optional<std::pair<int, int> > & causing_move) :
+uct_node::uct_node(uct_node *const parent, const board & position, const board::disk player, const std::optional<std::pair<int, int> > & causing_move) :
 	parent(parent),
 	position(std::move(position)),
 	player(player),
