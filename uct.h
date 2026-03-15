@@ -50,7 +50,7 @@ public:
 	auto         get_children() const;
 
 	bool         has_causing_move() const;  // or pass
-	const std::pair<int, int>  get_causing_move() const;
+	const std::optional<std::pair<int, int> > get_causing_move() const;
 
 	void         update_stats(const uint64_t visited, const double score);
 	uint64_t     get_visit_count() const;

@@ -29,7 +29,6 @@ uct_node::~uct_node()
 std::optional<uct_node *> uct_node::add_child(const std::pair<int, int>  & m)
 {
 	board new_position(position);
-
 	new_position.put(m.first, m.second, player);
 
 	children.emplace_back(new uct_node(this, new_position, opponent_color(player), m));
@@ -57,10 +56,9 @@ double uct_node::get_score()
 {
 	assert(visited);
 
+	constexpr const double sqrt_2 = sqrt(2.0);
+
 	double UCTj = score / visited;
-
-	constexpr double sqrt_2 = sqrt(2.0);
-
 	UCTj += sqrt_2 * sqrt(log(parent->get_visit_count()) / visited);
 
 	return UCTj;
@@ -167,12 +165,8 @@ auto uct_node::get_children() const
 {
 	std::vector<std::tuple<std::optional<std::pair<int, int> >, uint64_t, double> > out;
 
-	for(auto & u: children) {
-		if (u->has_causing_move())
-			out.push_back({ u->get_causing_move(), u->get_visit_count(), u->get_score_count() });
-		else
-			out.push_back({ { }, u->get_visit_count(), u->get_score_count() });
-	}
+	for(auto & u: children)
+		out.push_back({ u->get_causing_move(), u->get_visit_count(), u->get_score_count() });
 
 	return out;
 }
@@ -220,7 +214,6 @@ double uct_node::playout(const uct_node *const leaf)
 void uct_node::monte_carlo_tree_search()
 {
 	uct_node *leaf = traverse();
-
 	if (leaf == nullptr)  // ko
 		return;
 
@@ -234,9 +227,9 @@ bool uct_node::has_causing_move() const
 	return causing_move.has_value();
 }
 
-const std::pair<int, int>  uct_node::get_causing_move() const
+const std::optional<std::pair<int, int> > uct_node::get_causing_move() const
 {
-	return causing_move.value();
+	return causing_move;
 }
 
 uct_node *uct_node::find_position(const board & which)
