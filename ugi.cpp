@@ -127,7 +127,13 @@ void ugi()
                         }
                 }
                 else if (parts.at(0) == "go") {
-                        int moves_to_go = b->estimate_total_move_count() / 2;
+			int n_valid_opp = b->get_valid(player == board::white ? board::black : board::white).size();
+                        int moves_to_go = b->estimate_total_move_count();
+			if (n_valid_opp) {
+				moves_to_go *= b->get_valid(player).size();
+				moves_to_go /= n_valid_opp;
+			}
+			moves_to_go /= 2;
 
                         int w_time = 0, b_time = 0, w_inc = 0, b_inc = 0;
                         bool time_set = false;
