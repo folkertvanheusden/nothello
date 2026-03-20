@@ -43,13 +43,15 @@ static int evaluate(const board & b, const board::disk player)
 	return score;
 }
 
-static std::pair<int, std::optional<std::pair<int, int> > > search(const board & b, const board::disk player, const int max_depth, const int depth, int alpha, int beta, std::atomic_bool *const stop)
+static std::pair<int, std::optional<std::pair<int, int> > > search(const board & b, const board::disk player, const int max_depth, const int depth, int alpha, int beta, uint64_t *const node_count, std::atomic_bool *const stop)
 {
 	if (depth == 0)
 		return { evaluate(b, player), { } };
 
 	if (*stop)
 		return { 0, { } };
+
+	(*node_count)++;
 
 	int start_alpha = alpha;
 
@@ -86,7 +88,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		board new_position(b);
 		new_position.put(move.first, move.second, player);
 
-		auto rc = search(new_position, opponent_color(player), max_depth, depth - 1, -beta, -alpha, stop);
+		auto rc = search(new_position, opponent_color(player), max_depth, depth - 1, -beta, -alpha, node_count, stop);
 		int score = -rc.first;
 
 		if (score > best_score) {
@@ -113,7 +115,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		}
 		else {
 			board new_position(b);
-			auto rc = search(new_position, opponent_color(player), max_depth, depth - 1, -beta, -alpha, stop);
+			auto rc = search(new_position, opponent_color(player), max_depth, depth - 1, -beta, -alpha, node_count, stop);
 			best_score = -rc.first;
 			best_move = rc.second;
 		}
@@ -181,15 +183,17 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 	int alpha_repeat = 0;
 	int beta_repeat = 0;
 
+	uint64_t node_count = 0;
 	for(;;) {
 		uint64_t start_t = get_ts_ms();
-		auto rc = search(b, player, d, d, alpha, beta, &stop);
+		auto rc = search(b, player, d, d, alpha, beta, &node_count, &stop);
 		uint64_t end_t = get_ts_ms();
 		if (stop)
 			break;
 		int score = rc.first;
 
-		printf("info depth %d score cp %d pv %s\n", d, score, gen_pv_str_from_tt(b, rc.second, player).c_str());
+		uint64_t t_delta = std::max(end_t - global_start_t, uint64_t(1));
+		printf("info depth %d nps %zu score cp %d pv %s\n", d, size_t(node_count * 1000 / t_delta), score, gen_pv_str_from_tt(b, rc.second, player).c_str());
 
 		if (score <= alpha) {
 			if (alpha_repeat >= 3)
