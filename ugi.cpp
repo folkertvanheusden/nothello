@@ -25,7 +25,7 @@ void send(const std::string & fmt, ...)
 
 void ugi()
 {
-	board      *b          = new board(true);
+	board      *b          = new board(INITIAL_FEN);
 	board::disk player     = board::black;
 	int         pass_count = 0;
 
@@ -51,7 +51,7 @@ void ugi()
                 }
                 else if (parts.at(0) == "uginewgame") {
 			delete b;
-			b = new board(true);
+			b = new board(INITIAL_FEN);
 
 			player = board::black;
 		}
@@ -59,8 +59,8 @@ void ugi()
 			send(player == board::black ? "response true\n" : "response false\n");
 		}
                 else if (parts.at(0) == "query" && parts.at(1) == "gameover") {
-			auto valid_moves_w = b->get_valid(board::white);
-			auto valid_moves_b = b->get_valid(board::black);
+			auto valid_moves_w = b->get_possible_move_list(board::white);
+			auto valid_moves_b = b->get_possible_move_list(board::black);
 			send((valid_moves_w.empty() && valid_moves_b.empty()) ? "response true\n" : "response false\n");
 		}
                 else if (parts.at(0) == "query" && parts.at(1) == "fen") {
@@ -80,7 +80,7 @@ void ugi()
 				send("response draw\n");
 		}
                 else if (parts.at(0) == "query" && parts.at(1) == "moves") {
-			auto valid_moves = b->get_valid(player);
+			auto valid_moves = b->get_possible_move_list(player);
 			for(auto & move: valid_moves)
 				send("%c%c ", move.first + 'a', move.second + '1');
 			send("\n");
@@ -103,7 +103,7 @@ void ugi()
                                 }
                                 else if (parts.at(i) == "startpos") {
 					delete b;
-                                        b = new board(true);
+                                        b = new board(INITIAL_FEN);
 					player = board::black;
                                         i++;
                                 }

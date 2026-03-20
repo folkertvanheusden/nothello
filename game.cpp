@@ -13,7 +13,7 @@
 
 void console_mode()
 {
-	board b(true);
+	board b(INITIAL_FEN);
 
 	board::disk player = board::black;
 
@@ -23,7 +23,7 @@ void console_mode()
 		printf("FEN: %s\n", b.emit_fen(player).c_str());
 		printf("\n");
 
-		auto valid_moves = b.get_valid(player);
+		auto valid_moves = b.get_possible_move_list(player);
 		if (valid_moves.empty())
 			break;
 
@@ -68,7 +68,7 @@ void console_mode()
 
 void autoplay()
 {
-	board       b(true);
+	board       b(INITIAL_FEN);
 	board::disk player = board::white;
 
 	for(;;) {
@@ -91,7 +91,7 @@ void make_openings(int depth, int n)
 {
 	for(int count=0; count<n; count++)
 	{
-		board       b(true);
+		board       b(INITIAL_FEN);
 		board::disk player = board::white;
 
 		for(int d=0; d<depth; d++) {

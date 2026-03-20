@@ -75,7 +75,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		}
 	}
 
-	auto moves = b.get_valid(player);
+	auto moves = b.get_possible_move_list(player);
 	std::optional<std::pair<int, int> > best_move;
 	int best_score = -32767;
 	for(auto & move: moves) {
@@ -98,7 +98,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 	}
 
 	if (best_score == -32767) {
-		if (b.get_valid(opponent_color(player)).empty() == true) {
+		if (b.get_possible_move_list(opponent_color(player)).empty() == true) {
 			int score = evaluate(b, player);
 			if (score < 0)
 				best_score = -10000 + csd;

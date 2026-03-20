@@ -23,7 +23,7 @@ thread_local auto rng = std::default_random_engine {};
 
 std::optional<std::pair<int, int> > generate_random_move(const board & b, const board::disk player)
 {
-	auto moves = b.get_valid(player);
+	auto moves = b.get_possible_move_list(player);
 	if (moves.empty())
 		return { };
 

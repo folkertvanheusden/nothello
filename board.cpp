@@ -7,44 +7,85 @@
 #include "str.h"
 
 
-board::board(const bool set_initial)
+constexpr const uint64_t MASKS[] {
+	0x7F7F7F7F7F7F7F7F,  // Right
+	0x007F7F7F7F7F7F7F,  // Down-right
+	0x00FFFFFFFFFFFFFF,  // Down
+	0x00FEFEFEFEFEFEFE,  // Down-left
+	0xFEFEFEFEFEFEFEFE,  // Left
+	0xFEFEFEFEFEFEFE00,  // Up-left
+	0xFFFFFFFFFFFFFFFF,  // Up
+	0x7F7F7F7F7F7F7F00   // Up-right
+};
+constexpr const uint64_t CORNER_MASK = 0x8100000000000081;
+constexpr const uint64_t SHIFTS [] { 1, 9, 8, 7, 1, 9, 8, 7 };  // 4 right- and 4 left-shifts
+
+board::board()
 {
-	memset(disks, 0x00, sizeof disks);
-	if (set_initial)
-		set_fen("8/8/8/3ox3/3xo3/8/8/8");
 }
 
 board::board(const std::string & fen)
 {
-	memset(disks, 0x00, sizeof disks);
 	set_fen(fen);
 }
 
 board::board(const char *const fen)
 {
-	memset(disks, 0x00, sizeof disks);
 	set_fen(fen);
 }
 
 board::board(const board & in)
 {
-	in.get_to(disks);
+	disks[white] = in.disks[white];
+	disks[black] = in.disks[black];
 }
 
 board::~board()
 {
 }
 
-void board::get_to(disk d[][8]) const
+// movegen is a transpile/inspired by
+// https://github.com/shedskin/shedskin/blob/master/examples/othello2/othello2.py (by Mark Dufour)
+
+uint64_t board::shift(const uint64_t disks, const int direction, const int S, const uint64_t M) const
 {
-	memcpy(d, disks, sizeof(disks));
+	if (direction < 4)
+		return (disks >> S) & M;
+
+	return (disks << S) & M;
+}
+
+void board::get_to(board & target) const
+{
+	target.disks[white] = disks[white];
+	target.disks[black] = disks[black];
 }
 
 board & board::operator=(const board & in)
 {
-	in.get_to(disks);
+	in.get_to(*this);
 
 	return *this;
+}
+
+inline uint64_t gen_mask(const int x, const int y)
+{
+	int      offset = y * 8 + x;
+	return uint64_t(1) << offset;
+}
+
+void board::set(const int x, const int y, board::disk d)
+{
+	uint64_t mask = gen_mask(x, y);
+
+	if (d == white)
+		disks[white] |= mask;
+	else if (d == black)
+		disks[black] |= mask;
+	else {
+		disks[white] &= ~mask;
+		disks[black] &= ~mask;
+	}
 }
 
 void board::set_fen(const std::string & fen)
@@ -53,14 +94,16 @@ void board::set_fen(const std::string & fen)
 
 	// 8/8/8/3ox3/3xo3/8/8/8 x
 
+	disks[0] = disks[1] = disks[2] = 0;
+
 	int x = 0;
 	int y = 0;
 
 	for(auto & c: parts[0]) {
 		if (c == 'o' || c == 'O')
-			disks[y][x++] = white;
+			set(x++, y, white);
 		else if (c == 'x' || c == 'X')
-			disks[y][x++] = black;
+			set(x++, y, black);
 		else if (c == '/') {
 		}
 		else
@@ -73,123 +116,93 @@ void board::set_fen(const std::string & fen)
 	}
 }
 
-bool board::scan(const int start_x, const int start_y, const int dx, const int dy, const disk border) const
+uint64_t board::get_possible_moves(const disk color) const
 {
-	unsigned x         = start_x + dx;
-	unsigned y         = start_y + dy;
-	bool     any_other = false;
+    uint64_t moves = 0;
 
-	while(x < 8 && y < 8) {
-		if (disks[y][x] == empty)
-			return false;
+    auto my_disks  = disks[color];
+    auto opp_disks = disks[opponent_color(color)];
+    auto empties   = ~(my_disks | opp_disks);
 
-		if (disks[y][x] == border)  // continuing a color
-			return any_other;  // there was another color in between
+    for(int direction=0; direction<8; direction++) {
+        auto S = SHIFTS[direction];
+        auto M = MASKS[direction];  // TODO M & opp_disks combineren?
+	auto MO = M & opp_disks;
 
-		// different color detected; register
-		any_other = true;
+        // Get opponent disks adjacent to my disks in direction dir.
+        uint64_t x = shift(my_disks, direction, S, MO);
 
-		x += dx;
-		y += dy;
-	}
+        // Add opponent disks adjacent to those, and so on.
+        x |= shift(x, direction, S, MO);
+        x |= shift(x, direction, S, MO);
+        x |= shift(x, direction, S, MO);
+        x |= shift(x, direction, S, MO);
+        x |= shift(x, direction, S, MO);
 
-	return false;
+        // Empty cells adjacent to those are valid moves.
+        moves |= shift(x, direction, S, M) & empties;
+    }
+
+    return moves;
 }
 
-bool board::is_valid(const int x, const int y, const disk cur) const
-{
-	if (disks[y][x] != empty)
-		return false;
-
-	return
-		scan(x, y,  0,  1, cur) ||
-		scan(x, y,  1,  0, cur) ||
-		scan(x, y,  0, -1, cur) ||
-		scan(x, y, -1,  0, cur) ||
-
-		scan(x, y,  1,  1, cur) ||
-		scan(x, y,  1, -1, cur) ||
-		scan(x, y, -1,  1, cur) ||
-		scan(x, y, -1, -1, cur);
-}
-
-std::vector<std::pair<int, int> > board::get_valid(const disk cur) const
+std::vector<std::pair<int, int> > board::get_possible_move_list(const disk color) const
 {
 	std::vector<std::pair<int, int> > out;
 
-	for(int y=0; y<8; y++) {
-		for(int x=0; x<8; x++) {
-			if (is_valid(x, y, cur))
-				out.emplace_back(x, y);
-		}
+	auto pattern = get_possible_moves(color);
+	out.reserve(std::popcount(pattern));
+
+	while(pattern) {
+		int i = std::countr_zero(pattern);
+		out.push_back({ i & 7, i >> 3 });
+		pattern &= (pattern - 1);
 	}
 
 	return out;
 }
 
-void board::scan_and_flip(const int start_x, const int start_y, const int dx, const int dy)
-{
-	unsigned x = start_x;
-	unsigned y = start_y;
-
-	std::optional<disk>     border;
-	std::optional<unsigned> border_x;
-	std::optional<unsigned> border_y;
-	bool                    any_other = false;
-
-	while(x < 8 && y < 8) {
-		if (disks[y][x] == empty)
-			break;
-
-		if (border.has_value() == false) {  // new border color
-			border   = disks[y][x];
-			border_x = x;
-			border_y = y;
-		}
-		else if (disks[y][x] == border.value()) {  // continuing a color
-			if (any_other) {  // there was another color in between
-				// fill range
-				unsigned fill_x = border_x.value() + dx;
-				unsigned fill_y = border_y.value() + dy;
-
-				do {
-					disks[fill_y][fill_x] = border.value();
-					fill_x += dx;
-					fill_y += dy;
-				}
-				while(fill_x != x || fill_y != y);
-			}
-
-			break;
-		}
-		else if (disks[y][x] != border.value()) {  // different color detected; register
-			any_other = true;
-		}
-
-		x += dx;
-		y += dy;
-	}
-}
-
-void board::put(const int x, const int y, const disk cur)
-{
-	assert(disks[y][x] == empty);
-	disks[y][x] = cur;
-
-	scan_and_flip(x, y,  0,  1);
-	scan_and_flip(x, y,  1,  0);
-	scan_and_flip(x, y,  0, -1);
-	scan_and_flip(x, y, -1,  0);
-
-	scan_and_flip(x, y,  1,  1);
-	scan_and_flip(x, y,  1, -1);
-	scan_and_flip(x, y, -1,  1);
-	scan_and_flip(x, y, -1, -1);
-}
-
 board::disk board::get(const int x, const int y) const
 {
-	return disks[y][x];
+	uint64_t mask = gen_mask(x, y);
+
+	if (disks[white] & mask)
+		return white;
+	if (disks[black] & mask)
+		return black;
+	return empty;
+}
+
+void board::put(const int x, const int y, const disk color)
+{
+	int      move = y * 8 + x;
+	uint64_t disk = uint64_t(1) << move;
+	disks[color] |= disk;
+
+	auto my_disks  = disks[color];
+	auto opp_disks = disks[opponent_color(color)];
+
+	uint64_t captured_disks = 0;
+
+	for(int direction=0; direction<8; direction++) {
+		auto S = SHIFTS[direction];
+		auto M = MASKS[direction];
+
+		// Find opponent disk adjacent to the new disk.
+		auto x = shift(disk, direction, S, M) & opp_disks;
+
+		// Add any adjacent opponent disk to that one, and so on.
+		for(int i=0; i<5 && x != 0; i++)
+			x |= shift(x, direction, S, M) & opp_disks;
+
+		// Determine whether the disks were captured.
+		auto bounding_disk = shift(x, direction, S, M) & my_disks;
+		if (bounding_disk)
+			captured_disks |= x;
+	}
+
+	disks[color] ^= captured_disks;
+	disks[opponent_color(color)] ^= captured_disks;
 }
 
 void board::dump() const
@@ -198,9 +211,10 @@ void board::dump() const
 		printf("%d ", y + 1);
 
 		for(int x=0; x<8; x++) {
-			if (disks[y][x] == empty)
+			auto d = get(x, y);
+			if (d == empty)
 				printf(".");
-			else if (disks[y][x] == black)
+			else if (d == black)
 				printf("x");
 			else
 				printf("o");
@@ -217,26 +231,13 @@ void board::dump() const
 
 int board::get_score(const disk for_whom) const
 {
-	int scores[3] { 0 };
-
-	for(int y=0; y<8; y++) {
-		for(int x=0; x<8; x++)
-			scores[disks[y][x]]++;
-	}
-
-	return scores[for_whom] - scores[for_whom == white ? black : white];
+	return std::popcount(disks[for_whom]) - std::popcount(disks[opponent_color(for_whom)]);
 }
 
 int board::estimate_total_move_count() const
 {
-	int counts[3] { 0 };
-
-	for(int y=0; y<8; y++) {
-		for(int x=0; x<8; x++)
-			counts[disks[y][x]]++;
-	}
-
-	return counts[empty];
+	auto empties = ~(disks[white] | disks[black]);
+	return std::popcount(empties);
 }
 
 std::string board::emit_fen(const disk current_player) const
@@ -247,7 +248,8 @@ std::string board::emit_fen(const disk current_player) const
 		int skip = 0;
 
 		for(int x=0; x<8; x++) {
-			if (disks[y][x] == empty)
+			auto d = get(x, y);
+			if (d == empty)
 				skip++;
 			else {
 				if (skip) {
@@ -255,7 +257,7 @@ std::string board::emit_fen(const disk current_player) const
 					skip = 0;
 				}
 
-				if (disks[y][x] == white)
+				if (d == white)
 					out += "o";
 				else
 					out += "x";
@@ -276,10 +278,7 @@ std::string board::emit_fen(const disk current_player) const
 
 bool board::operator==(const board & rhs) const
 {
-	disk copy[8][8];
-	rhs.get_to(copy);
-
-	return memcmp(copy, disks, sizeof copy) == 0;
+	return disks[white] == rhs.disks[white] && disks[black] == rhs.disks[black];
 }
 
 board::disk opponent_color(const board::disk & cur)

@@ -85,7 +85,9 @@ std::vector<std::optional<std::pair<int, int> > > get_pv_from_tt(const board & p
 		if (!te.has_value())
 			break;
 
-		if (work.is_valid(te.value().x, te.value().y, current_player) == false)
+		auto valid_moves = work.get_possible_moves(current_player);
+		int  offset      = te.value().y * 8 + te.value().x;
+		if ((valid_moves & (uint64_t(1) << offset)) == 0)
 			break;
 
 		if (te.value().move_valid) {

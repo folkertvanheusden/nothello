@@ -4,35 +4,37 @@
 #include <vector>
 
 
+#define INITIAL_FEN "8/8/8/3ox3/3xo3/8/8/8"
+
 class board
 {
 public:
 	enum disk { empty = 0, black, white };
 
 private:
-	disk disks[8][8];
+	uint64_t disks[3] { };
 
-	bool scan(const int start_x, const int start_y, const int dx, const int dy, const disk cur) const;
-	void scan_and_flip(const int start_x, const int start_y, const int dx, const int dy);
+	uint64_t shift(const uint64_t disks, const int direction, const int S, const uint64_t M) const;
 
 protected:
-	void get_to(disk d[][8]) const;
+	void get_to(board & target) const;
+	void set(const int x, const int y, board::disk d);
 	void set_fen(const std::string & fen);
 
 public:
-	board(const bool set_initial);
+	board();
 	board(const std::string & fen);
 	board(const char *const fen);
 	board(const board & in);
 	virtual ~board();
 
-	board & operator=(const board & in);
-	bool operator==(const board & rhs) const;
+	board & operator= (const board & in );
+	bool    operator==(const board & rhs) const;
 
-	bool   is_valid(const int x, const int y, const disk cur) const;
-	std::vector<std::pair<int, int> > get_valid(const disk cur) const;
-	void        put(const int x, const int y, const disk cur);
+	uint64_t    get_possible_moves(const disk color) const;
+	std::vector<std::pair<int, int> > get_possible_move_list(const disk color) const;
 	board::disk get(const int x, const int y) const;
+	void        put(const int x, const int y, const disk color);
 
 	void        dump() const;
 	std::string emit_fen(const disk current_player) const;
