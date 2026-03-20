@@ -91,11 +91,21 @@ void autoplay()
 uint64_t do_perft(const board & b, const board::disk player, const int depth)
 {
 	auto move_list = b.get_possible_move_list(player);
-	if (depth == 1)
+	if (depth == 1) {
+		if (move_list.empty())
+			return 1;
 		return move_list.size();
-	int new_depth = depth - 1;
+	}
 
+	int new_depth = depth - 1;
 	auto opp_color = opponent_color(player);
+
+	if (move_list.empty()) {
+		if (b.get_possible_moves(opp_color) == 0)
+			return 1;
+		return do_perft(b, opp_color, new_depth);
+	}
+
 	uint64_t count = 0;
 	for(const auto & move: move_list) {
 		board b_new(b);
