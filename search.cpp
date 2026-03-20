@@ -15,7 +15,8 @@ tt tti;
 
 static int evaluate(const board & b, const board::disk player)
 {
-	int score = b.get_score(board::black) * 10;
+	int mul = b.get_possible_moves(board::white) == 0 && b.get_possible_moves(board::black) == 0 ? 100 : 2;
+	int score = b.get_score(board::black) * mul;
 
 	int scores_borders[3] { };
 	for(int i=0; i<8; i++) {

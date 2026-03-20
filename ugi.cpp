@@ -159,12 +159,10 @@ void ugi()
                         if (time_set)
                                 think_time = (player == board::white ? w_time : b_time) * 0.95;
                         else {
-                                int cur_n_moves = moves_to_go <= 0 ? 40 : moves_to_go;
-
                                 int time_inc = player == board::white ? w_inc : b_inc;
 
                                 int ms = player == board::white ? w_time : b_time;
-                                think_time = (ms + (cur_n_moves - 1) * time_inc) / double(cur_n_moves + 7);
+                                think_time = (ms + (moves_to_go - 1) * time_inc) / double(moves_to_go + 7);
 
                                 int limit_duration_min = ms / 15;
                                 if (think_time > limit_duration_min)
@@ -172,8 +170,8 @@ void ugi()
                         }
 
                         // 50ms overhead
-                        if (think_time > 50)
-                                think_time -= 50;
+                        if (think_time > 5)
+                                think_time -= 5;
 
 			auto move = generate_search_move(*b, player, think_time);
 			if (move.has_value() == false && pass_count >= 1)
