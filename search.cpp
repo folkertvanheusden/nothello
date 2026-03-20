@@ -104,7 +104,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 	}
 
 	if (best_score == -32767) {
-		if (b.get_possible_move_list(opponent_color(player)).empty() == true) {
+		if (b.get_possible_moves(opponent_color(player)) == 0) {
 			int score = evaluate(b, player);
 			if (score < 0)
 				best_score = -10000 + csd;
