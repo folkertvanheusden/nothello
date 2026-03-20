@@ -88,19 +88,19 @@ void autoplay()
 	b.dump();
 }
 
-uint64_t do_perft(board & b, const board::disk player, int depth)
+uint64_t do_perft(const board & b, const board::disk player, const int depth)
 {
 	auto move_list = b.get_possible_move_list(player);
 	if (depth == 1)
 		return move_list.size();
-	depth--;
+	int new_depth = depth - 1;
 
 	auto opp_color = opponent_color(player);
 	uint64_t count = 0;
 	for(const auto & move: move_list) {
 		board b_new(b);
 		b_new.put(move.first, move.second, player);
-		count += do_perft(b_new, opp_color, depth);
+		count += do_perft(b_new, opp_color, new_depth);
 	}
 
 	return count;
