@@ -159,6 +159,11 @@ std::vector<std::pair<int, int> > board::get_possible_move_list(const disk color
 	return out;
 }
 
+uint64_t board::get_bitboard(const disk color) const
+{
+	return disks[color];
+}
+
 board::disk board::get(const int x, const int y) const
 {
 	uint64_t mask = gen_mask(x, y);

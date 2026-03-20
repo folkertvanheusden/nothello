@@ -31,6 +31,7 @@ public:
 	board & operator= (const board & in );
 	bool    operator==(const board & rhs) const;
 
+	uint64_t    get_bitboard(const disk color) const;
 	uint64_t    get_possible_moves(const disk color) const;
 	std::vector<std::pair<int, int> > get_possible_move_list(const disk color) const;
 	board::disk get(const int x, const int y) const;
