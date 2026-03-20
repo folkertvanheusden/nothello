@@ -177,7 +177,12 @@ board::disk board::get(const int x, const int y) const
 
 void board::put(const int x, const int y, const disk color)
 {
-	int      move = y * 8 + x;
+	int move = y * 8 + x;
+	put(move, color);
+}
+
+void board::put(const int move, const disk color)
+{
 	uint64_t disk = uint64_t(1) << move;
 	disks[color] |= disk;
 

@@ -36,6 +36,7 @@ public:
 	std::vector<std::pair<int, int> > get_possible_move_list(const disk color) const;
 	board::disk get(const int x, const int y) const;
 	void        put(const int x, const int y, const disk color);
+	void        put(const int move, const disk color);
 
 	void        dump() const;
 	std::string emit_fen(const disk current_player) const;

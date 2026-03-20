@@ -84,18 +84,22 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		}
 	}
 
-	auto moves = b.get_possible_move_list(player);
 	std::optional<std::pair<int, int> > best_move;
 	int best_score = -32767;
-	for(auto & move: moves) {
+
+	auto moves = b.get_possible_moves(player);
+        while(moves) {
+                int i = std::countr_zero(moves);
+                moves &= (moves - 1);
+
 		board new_position(b);
-		new_position.put(move.first, move.second, player);
+		new_position.put(i, player);
 
 		auto rc = search(new_position, opponent_color(player), max_depth, depth - 1, -beta, -alpha, node_count, stop);
 		int score = -rc.first;
 
 		if (score > best_score) {
-			best_move = move;
+			best_move = { i & 7, i >> 3 };
 			best_score = score;
 
 			if (score > alpha) {
