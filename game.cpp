@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cinttypes>
 #include <cstdio>
 #include <getopt.h>
 #include <readline/history.h>
@@ -87,6 +88,39 @@ void autoplay()
 	b.dump();
 }
 
+uint64_t do_perft(board & b, const board::disk player, int depth)
+{
+	auto move_list = b.get_possible_move_list(player);
+	if (depth == 1)
+		return move_list.size();
+	depth--;
+
+	auto opp_color = opponent_color(player);
+	uint64_t count = 0;
+	for(const auto & move: move_list) {
+		board b_new(b);
+		b_new.put(move.first, move.second, player);
+		count += do_perft(b_new, opp_color, depth);
+	}
+
+	return count;
+}
+
+void perft()
+{
+	board b(INITIAL_FEN);
+	int d = 1;
+	for(;;) {
+		uint64_t t_start = get_ts_ms();
+		uint64_t count   = do_perft(b, board::white, d);
+		uint64_t t_end   = get_ts_ms();
+
+		double   t_diff  = std::max(uint64_t(1), t_end - t_start) / 1000.;
+		printf("%d: %" PRIu64 " (%.3f nps, %.2f seconds)\n", d, count, count / t_diff, t_diff);
+		d++;
+	}
+}
+
 void make_openings(int depth, int n)
 {
 	for(int count=0; count<n; count++)
@@ -110,7 +144,7 @@ void make_openings(int depth, int n)
 void help()
 {
 	printf("Samei is (C) by folkert van heusden\n\n");
-	printf("-m mode  console/autoplay/ugi/make-openings\n");
+	printf("-m mode  console/autoplay/ugi/make-openings/perft\n");
 	printf("-d x     \"make-openings\" requires a depth\n");
 	printf("-n x     \"make-openings\" requires a count\n");
 }
@@ -141,6 +175,8 @@ int main(int argc, char *argv[])
 		autoplay();
 	else if (mode == "ugi")
 		ugi();
+	else if (mode == "perft")
+		perft();
 	else if (mode == "make-openings")
 		make_openings(depth, count);
 	else
