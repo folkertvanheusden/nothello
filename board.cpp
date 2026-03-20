@@ -133,11 +133,8 @@ uint64_t board::get_possible_moves(const disk color) const
         uint64_t x = shift(my_disks, direction, S, MO);
 
         // Add opponent disks adjacent to those, and so on.
-        x |= shift(x, direction, S, MO);
-        x |= shift(x, direction, S, MO);
-        x |= shift(x, direction, S, MO);
-        x |= shift(x, direction, S, MO);
-        x |= shift(x, direction, S, MO);
+	for(int i=0; i<5; i++)
+		x |= shift(x, direction, S, MO);
 
         // Empty cells adjacent to those are valid moves.
         moves |= shift(x, direction, S, M) & empties;
