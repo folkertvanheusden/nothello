@@ -18,7 +18,7 @@ constexpr const uint64_t MASKS[] {
 	0x7F7F7F7F7F7F7F00   // Up-right
 };
 constexpr const uint64_t CORNER_MASK = 0x8100000000000081;
-constexpr const uint64_t SHIFTS [] { 1, 9, 8, 7, 1, 9, 8, 7 };  // 4 right- and 4 left-shifts
+constexpr const int SHIFTS [] { 1, 9, 8, 7, 1, 9, 8, 7 };  // 4 right- and 4 left-shifts
 
 board::board()
 {
@@ -126,7 +126,7 @@ uint64_t board::get_possible_moves(const disk color) const
 
     for(int direction=0; direction<8; direction++) {
         auto S = SHIFTS[direction];
-        auto M = MASKS[direction];  // TODO M & opp_disks combineren?
+        auto M = MASKS[direction];
 	auto MO = M & opp_disks;
 
         // Get opponent disks adjacent to my disks in direction dir.
