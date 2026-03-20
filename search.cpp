@@ -15,11 +15,14 @@ tt tti;
 
 static int evaluate(const board & b, const board::disk player)
 {
-	int mul = b.get_possible_moves(board::white) == 0 && b.get_possible_moves(board::black) == 0 ? 100 : 2;
+	auto possible_moves_white = b.get_possible_moves(board::white);
+	auto possible_moves_black = b.get_possible_moves(board::black);
+
+	int mul = possible_moves_white == 0 && possible_moves_black == 0 ? 100 : 2;
 	int score = b.get_score(board::black) * mul;
 
 	// mobility
-        score += (std::popcount(b.get_possible_moves(board::black)) - std::popcount(b.get_possible_moves(board::white))) * 2;
+        score += (std::popcount(possible_moves_black) - std::popcount(possible_moves_white)) * 2;
 
 	int scores_borders[3] { };
 	for(int i=0; i<8; i++) {
