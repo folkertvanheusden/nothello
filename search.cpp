@@ -13,6 +13,8 @@
 
 tt tti;
 
+constexpr const uint64_t CORNER_MASK = 0x8100000000000081;
+
 static int evaluate(const board & b, const board::disk player)
 {
 	auto possible_moves_white = b.get_possible_moves(board::white);
@@ -24,6 +26,9 @@ static int evaluate(const board & b, const board::disk player)
 	// mobility
         score += (std::popcount(possible_moves_black) - std::popcount(possible_moves_white)) * 2;
 
+	auto bb_w = b.get_bitboard(board::white);
+	auto bb_b = b.get_bitboard(board::black);
+
 	int scores_borders[3] { };
 	for(int i=0; i<8; i++) {
 		scores_borders[b.get(0, i)]++;
@@ -33,12 +38,9 @@ static int evaluate(const board & b, const board::disk player)
 	}
 	score += scores_borders[board::black] - scores_borders[board::white];
 
-	int scores_corners[3] { };
-	scores_corners[b.get(0, 0)]++;
-	scores_corners[b.get(7, 0)]++;
-	scores_corners[b.get(0, 7)]++;
-	scores_corners[b.get(7, 7)]++;
-	score += (scores_corners[board::black] - scores_corners[board::white]) * 3;
+	auto corner_w = bb_w & CORNER_MASK;
+	auto corner_b = bb_b & CORNER_MASK;
+	score += (std::popcount(corner_b) - std::popcount(corner_w)) * 3;
 
 	if (player != board::black)
 		return -score;
