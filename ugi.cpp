@@ -8,7 +8,7 @@
 #include "time.h"
 
 
-void send(const std::string & fmt, ...)
+static void send(const std::string & fmt, ...)
 {
 	char *str = nullptr;
 

@@ -6,6 +6,7 @@
 #include <readline/readline.h>
 
 #include "board.h"
+#include "gtp.h"
 #include "random.h"
 #include "search.h"
 #include "time.h"
@@ -163,7 +164,7 @@ void make_openings(int depth, int n)
 void help()
 {
 	printf("Samei is (C) by folkert van heusden\n\n");
-	printf("-m mode  console/autoplay/ugi/make-openings/perft\n");
+	printf("-m mode  console/autoplay/gtp/ugi/make-openings/perft\n");
 	printf("-d x     \"make-openings\" requires a depth\n");
 	printf("-n x     \"make-openings\" requires a count\n");
 }
@@ -194,6 +195,8 @@ int main(int argc, char *argv[])
 		autoplay();
 	else if (mode == "ugi")
 		ugi();
+	else if (mode == "gtp")
+		gtp();
 	else if (mode == "perft")
 		perft();
 	else if (mode == "make-openings")

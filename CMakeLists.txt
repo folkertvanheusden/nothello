@@ -25,6 +25,7 @@ add_executable(
   samei
   board.cpp
   game.cpp
+  gtp.cpp
   random.cpp
   search.cpp
   str.cpp
