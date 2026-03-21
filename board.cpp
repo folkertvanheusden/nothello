@@ -215,10 +215,10 @@ void board::put(const int move, const disk color)
 void board::dump() const
 {
 	for(int y=0; y<8; y++) {
-		printf("%d ", y + 1);
+		printf("%d ", 7 - y + 1);
 
 		for(int x=0; x<8; x++) {
-			auto d = get(x, y);
+			auto d = get(x, 7 - y);
 			if (d == empty)
 				printf(".");
 			else if (d == black)
