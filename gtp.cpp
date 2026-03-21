@@ -39,7 +39,8 @@ void gtp()
 	board *b         = new board(INITIAL_FEN);
 	int    calc_time = 1000;
 	std::set<std::string> commands { "protocol_version", "name", "version", "known_command", "list_commands",
-					"quit", "boardsize", "clear_board", "komi", "play", "genmove", "time_settings" };
+					"quit", "boardsize", "clear_board", "komi", "play", "genmove",
+					"time_settings", "gogui-rules_final_result" };
 
 	for(;;) {
 		char buffer[4096];
@@ -74,24 +75,33 @@ void gtp()
 			send(id + "= 0.1\n");
 		else if (cmd == "quit")
 			break;
-		else if (cmd == "boardsize\n") {
+		else if (cmd == "boardsize") {
 			if (parts[offset + 1] != "8")
 				send("?" + id + "\n");
 			else
-				send(id + "= ok");
+				send(id + "= ok\n");
 		}
 		else if (cmd == "clear_board") {
 			delete b;
-			b = new board();
+			b = new board(INITIAL_FEN);
 			send(id + "= ok\n");
 		}
 		else if (cmd == "komi")
 			send(id + "= ok\n");
+		else if (cmd == "gogui-rules_final_result") {
+			auto score = b->get_score(board::black);
+			if (score > 0)
+				send(id + "= black\n");
+			else if (score < 0)
+				send(id + "= white\n");
+			else
+				send(id + "= draw\n");
+		}
 		else if (cmd == "time_settings") {
 			calc_time = std::stoi(parts[++offset]) * 1000;
 			send(id + "= ok\n");
 		}
-		else if (cmd == "commands") {
+		else if (cmd == "list_commands") {
 			for(auto & cmd: commands)
 				send(id + "= " + cmd);
 			send("\n");
@@ -102,7 +112,7 @@ void gtp()
 		}
 		else if (cmd == "play") {
 			auto color = str_to_disk(parts[++offset]);
-			auto move  = parts[offset];
+			auto move  = parts[++offset];
 
 			if (color.has_value() && move.size() == 2) {
 				int x = toupper(move.at(0)) - 'A';
