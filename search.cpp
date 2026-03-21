@@ -136,7 +136,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 			board new_position(b);
 			auto rc = search(new_position, opp_c, max_depth, depth - 1, -beta, -alpha, node_count, stop);
 			best_score = -rc.first;
-			best_move = rc.second;
+			best_move.reset();
 		}
 	}
 
@@ -243,10 +243,11 @@ std::optional<std::pair<std::pair<int, int>, int> > generate_search_move(const b
 		}
 		else {
 			d++;
-			if (rc.second.has_value()) {
-				best_score = rc.first;
-				best_move  = rc.second.value();
-			}
+			best_score = rc.first;
+			if (rc.second.has_value())
+				best_move = rc.second.value();
+			else
+				best_move = { -1, -1 };
 		}
 
 		int64_t time_left = search_time - (end_t - global_start_t);
