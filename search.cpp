@@ -39,6 +39,15 @@ static int evaluate(const board & b, const board::disk player)
 	auto corner_b = bb_b & CORNER_MASK;
 	score += (std::popcount(corner_b) - std::popcount(corner_w)) * 3;
 
+#if !defined(NDEBUG)
+	if (abs(score) > 10000) {
+		printf("%d\n", score);
+		printf("%d, %d, %d\n", mul, b.get_score(board::black), b.get_score(board::black) * mul);
+		b.dump();
+		exit(1);
+	}
+#endif
+
 	if (player != board::black)
 		return -score;
 
