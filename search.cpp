@@ -18,7 +18,7 @@ static int evaluate(const board & b, const board::disk player)
 	auto possible_moves_white = b.get_possible_moves(board::white);
 	auto possible_moves_black = b.get_possible_moves(board::black);
 
-	int mul = possible_moves_white == 0 && possible_moves_black == 0 ? 100 : 2;
+	int mul = possible_moves_white == 0 && possible_moves_black == 0 ? 250 : 2;
 	int score = b.get_score(board::black) * mul;
 
 	// mobility
@@ -114,9 +114,9 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		if (b.get_possible_moves(opponent_color(player)) == 0) {
 			int score = evaluate(b, player);
 			if (score < 0)
-				best_score = -10000 + csd;
+				best_score = score + csd;
 			else if (score > 0)
-				best_score = 10000 - csd;
+				best_score = score - csd;
 			else
 				best_score = 0;
 		}
