@@ -14,6 +14,7 @@
 tt tti;
 
 constexpr const uint64_t CORNER_MASK = 0x8100000000000081;
+constexpr const uint64_t BORDER_MASK = 0xff818181818181ff;
 
 static int evaluate(const board & b, const board::disk player)
 {
@@ -26,17 +27,13 @@ static int evaluate(const board & b, const board::disk player)
 	// mobility
         score += (std::popcount(possible_moves_black) - std::popcount(possible_moves_white)) * 2;
 
+	// borders, corners
 	auto bb_w = b.get_bitboard(board::white);
 	auto bb_b = b.get_bitboard(board::black);
 
-	int scores_borders[3] { };
-	for(int i=0; i<8; i++) {
-		scores_borders[b.get(0, i)]++;
-		scores_borders[b.get(7, i)]++;
-		scores_borders[b.get(i, 0)]++;
-		scores_borders[b.get(i, 7)]++;
-	}
-	score += scores_borders[board::black] - scores_borders[board::white];
+	auto border_w = bb_w & BORDER_MASK;
+	auto border_b = bb_b & BORDER_MASK;
+	score += std::popcount(border_b) - std::popcount(border_w);
 
 	auto corner_w = bb_w & CORNER_MASK;
 	auto corner_b = bb_b & CORNER_MASK;
