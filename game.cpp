@@ -55,8 +55,8 @@ void console_mode()
 		else {
 			auto move = generate_search_move(b, player, 1000);
 			if (move.has_value()) {
-				printf("I play: %c%c\n", move.value().first + 'A', move.value().second + '1');
-				b.put(move.value().first, move.value().second, player);
+				printf("I play: %c%c\n", move.value().first.first + 'A', move.value().first.second + '1');
+				b.put(move.value().first.first, move.value().first.second, player);
 			}
 		}
 
@@ -71,18 +71,27 @@ void autoplay()
 {
 	board       b(INITIAL_FEN);
 	board::disk player = board::white;
+	int64_t     time[3] { };
+	time[board::black] = time[board::white] = 11000;
 
 	for(;;) {
-		auto move = generate_search_move(b, player, 750);
-		if (move.has_value()) {
-			printf("I play: %c%c\n", move.value().first + 'A', move.value().second + '1');
-			b.put(move.value().first, move.value().second, player);
-		}
-		else {
+		if (time[player] <= 0) {
+			printf("Player has no more think time\n");
 			break;
 		}
 
-		player = player == board::white ? board::black : board::white;
+                int  moves_to_go = b.estimate_total_move_count() / 2;
+		int  think_time  = time[player] / double(moves_to_go + 7);
+		auto start_ts    = get_ts_ms();
+		auto move        = generate_search_move(b, player, think_time);
+		if (move.has_value() == false)
+			break;
+		time[player] -= get_ts_ms() - start_ts;
+
+		printf("I play: %c%c\n", move.value().first.first + 'A', move.value().first.second + '1');
+		b.put(move.value().first.first, move.value().first.second, player);
+
+		player = opponent_color(player);
 	}
 
 	b.dump();

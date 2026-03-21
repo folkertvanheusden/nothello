@@ -34,8 +34,6 @@ void ugi()
 		if (fgets(buffer, sizeof buffer, stdin) == nullptr)
 			break;
 
-		uint64_t now = get_ts_ms();
-
 		char *lf = strchr(buffer, '\n');
 		if (lf)
 			*lf = 0x00;
@@ -174,16 +172,14 @@ void ugi()
                                 think_time -= 5;
 
 			auto move = generate_search_move(*b, player, think_time);
-			if (move.has_value() == false && pass_count >= 1)
-				move = generate_random_move(*b, player);
 			if (move.has_value() == false)
 				send("bestmove 0000\n");
 			else {
-				b->put(move.value().first, move.value().second, player);
-				send("bestmove %c%c\n", move.value().first + 'a', move.value().second + '1');
+				b->put(move.value().first.first, move.value().first.second, player);
+				send("bestmove %c%c\n", move.value().first.first + 'a', move.value().first.second + '1');
 			}
 
-			player = player == board::black ? board::white : board::black;
+			player = opponent_color(player);
                 }
                 else if (parts.at(0) == "isready")
 			send("readyok\n");

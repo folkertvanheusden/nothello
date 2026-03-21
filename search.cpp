@@ -174,7 +174,7 @@ std::string gen_pv_str_from_tt(const board & b, const std::optional<std::pair<in
 	return pv_str;
 }
 
-std::optional<std::pair<int, int> > generate_search_move(const board & b, const board::disk player, const int search_time)
+std::optional<std::pair<std::pair<int, int>, int> > generate_search_move(const board & b, const board::disk player, const int search_time)
 {
 	std::atomic_bool stop { false };
 	uint64_t global_start_t = get_ts_ms();
@@ -185,7 +185,8 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 	int add_alpha = 15;
 	int add_beta = 15;
 	int d = 1;
-	std::optional<std::pair<int, int> > best_move;
+	std::pair<int, int> best_move { -1, -1 };
+	int best_score = 0;
 	int alpha_repeat = 0;
 	int beta_repeat = 0;
 
@@ -229,7 +230,10 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 		}
 		else {
 			d++;
-			best_move = rc.second;
+			if (rc.second.has_value()) {
+				best_score = rc.first;
+				best_move  = rc.second.value();
+			}
 		}
 
 		int64_t time_left = search_time - (end_t - global_start_t);
@@ -244,5 +248,8 @@ std::optional<std::pair<int, int> > generate_search_move(const board & b, const 
 	uint64_t global_end_t = get_ts_ms();
 	printf("info string used %" PRIu64 " ms of %d ms\n", global_end_t - global_start_t, search_time);
 
-	return best_move;
+	if (best_move.first != -1)
+		return { { best_move, best_score } };
+
+	return { };
 }
