@@ -80,13 +80,17 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 				(flag == UPPERBOUND && work_score <= alpha);
 
 			if (use) {
+				bool valid = true;
 				if (te.value().move_valid) {
-					int x = te.value().x;
-					int y = te.value().y;
-					return { work_score, { { x, y } } };
+					valid = b.get_possible_moves(player) & (uint64_t(1) << (te.value().y * 8 + te.value().x));
+					if (valid) {
+						int x = te.value().x;
+						int y = te.value().y;
+						return { work_score, { { x, y } } };
+					}
 				}
 
-				if (!is_top)
+				if (!is_top && valid)
 					return { work_score, { } };
 			}
 		}
