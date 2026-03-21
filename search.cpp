@@ -97,8 +97,8 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 	}
 
 	std::optional<std::pair<int, int> > best_move;
-	int best_score = -32767;
-
+	int  best_score = -32767;
+	auto opp_c = opponent_color(player);
 	auto moves = b.get_possible_moves(player);
         while(moves) {
                 int i = std::countr_zero(moves);
@@ -107,7 +107,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		board new_position(b);
 		new_position.put(i, player);
 
-		auto rc = search(new_position, opponent_color(player), max_depth, depth - 1, -beta, -alpha, node_count, stop);
+		auto rc = search(new_position, opp_c, max_depth, depth - 1, -beta, -alpha, node_count, stop);
 		int score = -rc.first;
 
 		if (score > best_score) {
@@ -123,7 +123,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 	}
 
 	if (best_score == -32767) {
-		if (b.get_possible_moves(opponent_color(player)) == 0) {
+		if (b.get_possible_moves(opp_c) == 0) {
 			int score = evaluate(b, player);
 			if (score < 0)
 				best_score = score + csd;
@@ -134,7 +134,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		}
 		else {
 			board new_position(b);
-			auto rc = search(new_position, opponent_color(player), max_depth, depth - 1, -beta, -alpha, node_count, stop);
+			auto rc = search(new_position, opp_c, max_depth, depth - 1, -beta, -alpha, node_count, stop);
 			best_score = -rc.first;
 			best_move = rc.second;
 		}
