@@ -40,7 +40,7 @@ void gtp()
 	int    calc_time = 1000;
 	std::set<std::string> commands { "protocol_version", "name", "version", "known_command", "list_commands",
 					"quit", "boardsize", "clear_board", "komi", "play", "genmove",
-					"time_settings", "gogui-rules_final_result" };
+					"time_settings", "gogui-rules_final_result", "final_score" };
 
 	for(;;) {
 		char buffer[4096];
@@ -88,6 +88,15 @@ void gtp()
 		}
 		else if (cmd == "komi")
 			send(id + "= ok\n");
+		else if (cmd == "final_score") {
+			auto score = b->get_score(board::black);
+			if (score > 0)
+				send(id + "= B" + std::to_string(score) + "\n");
+			else if (score < 0)
+				send(id + "= W" + std::to_string(-score) + "\n");
+			else
+				send(id + "= 0\n");
+		}
 		else if (cmd == "gogui-rules_final_result") {
 			auto score = b->get_score(board::black);
 			if (score > 0)
@@ -120,6 +129,8 @@ void gtp()
 				b->put(x, y, color.value());
 				send(id + "= ok\n");
 			}
+			else if (move == "pass" || move == "PASS")
+				send(id + "= ok\n");
 			else {
 				send("?" + id + " invalid move?\n");
 			}
@@ -145,6 +156,7 @@ void gtp()
 			if (move.has_value() == false)
 				send(id + "= pass\n");
 			else {
+				b->dump();
 				b->put(move.value().first.first, move.value().first.second, color.value());
 				send(id + "= %c%c\n", move.value().first.first + 'a', move.value().first.second + '1');
 			}
