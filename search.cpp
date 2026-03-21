@@ -116,7 +116,7 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 
 			if (score > alpha) {
 				if (score >= beta)
-					return { score, best_move };
+					break;
 				alpha = score;
 			}
 		}
