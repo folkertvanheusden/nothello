@@ -44,7 +44,7 @@ board::~board()
 {
 }
 
-// movegen is a transpile/inspired by
+// movegen is a transpile from/inspired by
 // https://github.com/shedskin/shedskin/blob/master/examples/othello2/othello2.py (by Mark Dufour)
 
 uint64_t board::shift(const uint64_t disks, const int direction, const int S, const uint64_t M) const
