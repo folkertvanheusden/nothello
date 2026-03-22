@@ -61,15 +61,14 @@ void sorter(std::vector<std::pair<int, int> > *const moves, const std::vector<st
 	std::sort(moves->begin(), moves->end(), [front](const std::pair<int, int> & a, const std::pair<int, int> & b) {
 		auto it1 = std::find(front.begin(), front.end(), a);
 		auto it2 = std::find(front.begin(), front.end(), b);
-		if (it1 != front.end()) {
-			auto d1 = std::distance(front.begin(), it1);
-			if (it2 != front.end()) {
-				auto d2 = std::distance(front.begin(), it2);
-				return d2 > d1;
-			}
+		int  d1  = INT_MAX;
+		int  d2  = INT_MAX;
+		if (it1 != front.end())
+			d1 = std::distance(front.begin(), it1);
+		if (it2 != front.end())
+			d2 = std::distance(front.begin(), it2);
 
-			return false;
-		}
+		return d2 > d1;
 	});
 }
 
@@ -127,6 +126,8 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 		std::vector<std::pair<int, int> > front;
 		front.push_back(tt_move.value());
 		sorter(&moves, front);
+		// if (tt_move.value().first != moves[0].first || tt_move.value().second != moves[0].second)
+		// 	printf("hier %d,%d -> %d,%d\n", tt_move.value().first, tt_move.value().second, moves[0].first, moves[0].second);
 	}
 
         for(auto & move : moves) {
