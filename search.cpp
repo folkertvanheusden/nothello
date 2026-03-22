@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <atomic>
 #include <cassert>
 #include <cinttypes>
@@ -55,6 +56,23 @@ static int evaluate(const board & b, const board::disk player)
 	return score;
 }
 
+void sorter(std::vector<std::pair<int, int> > *const moves, const std::vector<std::pair<int, int> > & front)
+{
+	std::sort(moves->begin(), moves->end(), [front](const std::pair<int, int> & a, const std::pair<int, int> & b) {
+		auto it1 = std::find(front.begin(), front.end(), a);
+		auto it2 = std::find(front.begin(), front.end(), b);
+		if (it1 != front.end()) {
+			auto d1 = std::distance(front.begin(), it1);
+			if (it2 != front.end()) {
+				auto d2 = std::distance(front.begin(), it2);
+				return d2 > d1;
+			}
+
+			return false;
+		}
+	});
+}
+
 static std::pair<int, std::optional<std::pair<int, int> > > search(const board & b, const board::disk player, const int max_depth, const int depth, int alpha, int beta, uint64_t *const node_count, std::atomic_bool *const stop)
 {
 	if (depth == 0)
@@ -70,8 +88,11 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 	const int csd = max_depth - depth;
 	uint64_t hash = calculate_zobrist(b, player);
 	bool is_top = depth == max_depth;
+	std::optional<std::pair<int, int> > tt_move;
 	std::optional<tt_entry> te = tti.lookup(hash);
 	if (te.has_value()) {
+		bool valid = b.get_possible_moves(player) & (uint64_t(1) << (te.value().y * 8 + te.value().x));
+
 		if (te.value().depth >= depth) {
 			int  score      = te.value().score;
 			int  work_score = eval_from_tt(score, csd);
@@ -82,7 +103,6 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 
 			if (use) {
 				if (te.value().not_pass) {
-					bool valid = b.get_possible_moves(player) & (uint64_t(1) << (te.value().y * 8 + te.value().x));
 					if (valid) {
 						int x = te.value().x;
 						int y = te.value().y;
@@ -94,24 +114,30 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 					return { work_score, { } };
 			}
 		}
+
+		if (valid && te.value().not_pass)
+			tt_move = { { int(te.value().x), int(te.value().y) } };
 	}
 
 	std::optional<std::pair<int, int> > best_move;
 	int  best_score = -32767;
-	auto opp_c = opponent_color(player);
-	auto moves = b.get_possible_moves(player);
-        while(moves) {
-                int i = std::countr_zero(moves);
-                moves &= (moves - 1);
+	auto opp_c      = opponent_color(player);
+	auto moves      = b.get_possible_move_list(player);
+	if (tt_move.has_value()) {
+		std::vector<std::pair<int, int> > front;
+		front.push_back(tt_move.value());
+		sorter(&moves, front);
+	}
 
+        for(auto & move : moves) {
 		board new_position(b);
-		new_position.put(i, player);
+		new_position.put(move.first, move.second, player);
 
 		auto rc = search(new_position, opp_c, max_depth, depth - 1, -beta, -alpha, node_count, stop);
 		int score = -rc.first;
 
 		if (score > best_score) {
-			best_move = { i & 7, i >> 3 };
+			best_move = move;
 			best_score = score;
 
 			if (score > alpha) {
