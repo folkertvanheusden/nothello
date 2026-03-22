@@ -15,7 +15,7 @@ typedef struct __attribute__ ((__packed__))
 	uint8_t depth: 7;
 	uint8_t x: 3; 
 	uint8_t y: 3; 
-	uint8_t move_valid: 1;
+	uint8_t not_pass: 1;
 	uint8_t flags: 2;
 } tt_entry;
 

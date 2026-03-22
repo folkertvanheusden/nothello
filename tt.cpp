@@ -40,7 +40,7 @@ void tt::store(const uint64_t hash, const tt_entry_flag f, const int d, const in
 	new_entry.hash = hash;
 	new_entry.score = score;
 	new_entry.depth = d;
-	new_entry.move_valid = m.has_value();
+	new_entry.not_pass = m.has_value();
 	if (m.has_value()) {
 		new_entry.x = m.value().first;
 		new_entry.y = m.value().second;
@@ -90,7 +90,7 @@ std::vector<std::optional<std::pair<int, int> > > get_pv_from_tt(const board & p
 		if ((valid_moves & (uint64_t(1) << offset)) == 0)
 			break;
 
-		if (te.value().move_valid) {
+		if (te.value().not_pass) {
 			int x = te.value().x;
 			int y = te.value().y;
 			work.put(x, y, current_player);
