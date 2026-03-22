@@ -40,7 +40,9 @@ void gtp()
 	int    calc_time = 1000;
 	std::set<std::string> commands { "protocol_version", "name", "version", "known_command", "list_commands",
 					"quit", "boardsize", "clear_board", "komi", "play", "genmove",
-					"time_settings", "gogui-rules_final_result", "final_score" };
+					"time_settings", "gogui-rules_final_result", "final_score",
+					"gogui-rules_game_id"
+	};
 
 	for(;;) {
 		char buffer[4096];
@@ -83,7 +85,7 @@ void gtp()
 		}
 		else if (cmd == "clear_board") {
 			delete b;
-			b = new board(INITIAL_FEN);
+			b = new board();
 			send(id + "= ok\n");
 		}
 		else if (cmd == "komi")
@@ -105,6 +107,9 @@ void gtp()
 				send(id + "= white\n");
 			else
 				send(id + "= draw\n");
+		}
+		else if (cmd == "gogui-rules_game_id") {
+			send(id + "= Othello\n");
 		}
 		else if (cmd == "time_settings") {
 			calc_time = std::stoi(parts[++offset]) * 1000;
