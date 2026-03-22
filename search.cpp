@@ -193,8 +193,11 @@ std::optional<std::pair<std::pair<int, int>, int> > generate_search_move(const b
 	uint64_t global_start_t = get_ts_ms();
 	auto think_timeout_timer = new std::thread([search_time, &stop] { timer(search_time, &stop); });
 
-	if (b.get_possible_moves(player) == 0)  // pass when no moves possible
+	auto moves = b.get_possible_move_list(player);
+	if (moves.empty())  // pass when no moves possible
 		return { };
+	if (moves.size() == 1)
+		return { { moves.at(0), 0 } };
 
 	int alpha = -10000;
 	int beta = 10000;
