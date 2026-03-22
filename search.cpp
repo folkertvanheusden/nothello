@@ -2,6 +2,8 @@
 #include <atomic>
 #include <cassert>
 #include <cinttypes>
+#include <condition_variable>
+#include <mutex>
 #include <optional>
 #include <set>
 #include <thread>
@@ -183,17 +185,32 @@ static std::pair<int, std::optional<std::pair<int, int> > > search(const board &
 	return { best_score, best_move };
 }
 
-static void timer(const int think_time, std::atomic_bool *const stop)
+struct end_t {
+	std::atomic_bool        flag;
+	std::condition_variable cv;
+	std::mutex              cv_lock;
+};
+
+void set_flag(end_t *const stop)
 {
-        if (think_time > 0) {
-                auto end_time = std::chrono::high_resolution_clock::now() += std::chrono::milliseconds{think_time};
+	std::unique_lock<std::mutex> lck(stop->cv_lock);
+	stop->cv.notify_all();
+	stop->flag = true;
+}
 
-		// TODO replace by condition_variable
-		while(std::chrono::high_resolution_clock::now() < end_time && *stop == false)
-			usleep(10000);
-        }
+static void timer(const int think_time, end_t *const ei)
+{
+	if (think_time > 0) {
+		auto end_time = std::chrono::high_resolution_clock::now() += std::chrono::milliseconds{think_time};
 
-	*stop = true;
+		std::unique_lock<std::mutex> lk(ei->cv_lock);
+		while(!ei->flag) {
+			if (ei->cv.wait_until(lk, end_time) == std::cv_status::timeout)
+				break;
+		}
+	}
+
+	set_flag(ei);
 }
 
 std::string gen_pv_str_from_tt(const board & b, const std::optional<std::pair<int, int> > & first_move, const board::disk player)
@@ -226,15 +243,16 @@ bool update_and_check_repetition(std::set<uint64_t> *const history, const board 
 
 std::optional<std::pair<std::pair<int, int>, int> > generate_search_move(const board & b, const board::disk player, const int search_time)
 {
-	std::atomic_bool stop { false };
+	end_t    ei { };
 	uint64_t global_start_t = get_ts_ms();
-	auto think_timeout_timer = new std::thread([search_time, &stop] { timer(search_time, &stop); });
 
 	auto moves = b.get_possible_move_list(player);
 	if (moves.empty())  // pass when no moves possible
 		return { };
 	if (moves.size() == 1)
 		return { { moves.at(0), 0 } };
+
+	auto think_timeout_timer = new std::thread([search_time, &ei] { timer(search_time, &ei); });
 
 	int alpha = -10000;
 	int beta = 10000;
@@ -249,9 +267,9 @@ std::optional<std::pair<std::pair<int, int>, int> > generate_search_move(const b
 	uint64_t node_count = 0;
 	for(;;) {
 		uint64_t start_t = get_ts_ms();
-		auto rc = search(b, player, d, d, alpha, beta, &node_count, &stop);
+		auto rc = search(b, player, d, d, alpha, beta, &node_count, &ei.flag);
 		uint64_t end_t = get_ts_ms();
-		if (stop)
+		if (ei.flag)
 			break;
 		int score = rc.first;
 
@@ -291,6 +309,8 @@ std::optional<std::pair<std::pair<int, int>, int> > generate_search_move(const b
 				best_move = rc.second.value();
 			else
 				best_move = { -1, -1 };
+			if (d >= 127)
+				break;
 		}
 
 		int64_t time_left = search_time - (end_t - global_start_t);
@@ -298,7 +318,7 @@ std::optional<std::pair<std::pair<int, int>, int> > generate_search_move(const b
 			break;
 	}
 
-	stop = true;
+	set_flag(&ei);
 	think_timeout_timer->join();
 	delete think_timeout_timer;
 

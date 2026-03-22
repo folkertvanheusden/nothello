@@ -76,13 +76,12 @@ void autoplay()
 	time[board::black] = time[board::white] = 11000;
 
 	for(;;) {
-		if (time[player] <= 0) {
+                int  moves_to_go = b.estimate_total_move_count() / 2;
+		int  think_time  = time[player] / double(moves_to_go + 7);
+		if (think_time <= 0) {
 			printf("Player has no more think time\n");
 			break;
 		}
-
-                int  moves_to_go = b.estimate_total_move_count() / 2;
-		int  think_time  = time[player] / double(moves_to_go + 7);
 		auto start_ts    = get_ts_ms();
 		auto move        = generate_search_move(b, player, think_time);
 		if (move.has_value() == false)
