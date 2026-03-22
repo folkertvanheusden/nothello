@@ -230,7 +230,7 @@ std::optional<std::pair<std::pair<int, int>, int> > generate_search_move(const b
 		int score = rc.first;
 
 		uint64_t t_delta = std::max(end_t - global_start_t, uint64_t(1));
-		printf("info depth %d nps %zu score cp %d pv %s\n", d, size_t(node_count * 1000 / t_delta), score, gen_pv_str_from_tt(b, rc.second, player).c_str());
+		printf("info depth %d time %zu nps %zu score cp %d pv %s\n", d, size_t(t_delta), size_t(node_count * 1000 / t_delta), score, gen_pv_str_from_tt(b, rc.second, player).c_str());
 
 		if (score <= alpha) {
 			if (alpha_repeat >= 3)
