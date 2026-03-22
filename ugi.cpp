@@ -1,5 +1,6 @@
 #include <cstring>
 #include <cstdarg>
+#include <set>
 
 #include "board.h"
 #include "random.h"
@@ -28,6 +29,7 @@ void ugi()
 	board      *b          = new board(INITIAL_FEN);
 	board::disk player     = board::black;
 	int         pass_count = 0;
+	std::set<uint64_t> history;
 
 	for(;;) {
 		char buffer[4096];
@@ -50,8 +52,8 @@ void ugi()
                 else if (parts.at(0) == "uginewgame") {
 			delete b;
 			b = new board(INITIAL_FEN);
-
 			player = board::black;
+			history.clear();
 		}
                 else if (parts.at(0) == "query" && parts.at(1) == "p1turn") {
 			send(player == board::black ? "response true\n" : "response false\n");
@@ -131,6 +133,11 @@ void ugi()
                         }
                 }
                 else if (parts.at(0) == "go") {
+			if (update_and_check_repetition(&history, *b, player) == true) {
+				send("bestmove 0000\n");
+				continue;
+			}
+
                         int moves_to_go = b->estimate_total_move_count() / 2;
 
                         int w_time = 0, b_time = 0, w_inc = 0, b_inc = 0;

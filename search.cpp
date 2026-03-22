@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cinttypes>
 #include <optional>
+#include <set>
 #include <thread>
 #include <vector>
 
@@ -185,6 +186,16 @@ std::string gen_pv_str_from_tt(const board & b, const std::optional<std::pair<in
 		}
 	}
 	return pv_str;
+}
+
+// returns true for repetition
+bool update_and_check_repetition(std::set<uint64_t> *const history, const board & b, const board::disk player)
+{
+	uint64_t hash = calculate_zobrist(b, player);
+	if (history->find(hash) != history->end())
+		return true;
+	history->insert(hash);
+	return false;
 }
 
 std::optional<std::pair<std::pair<int, int>, int> > generate_search_move(const board & b, const board::disk player, const int search_time)
